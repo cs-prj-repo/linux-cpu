@@ -35,7 +35,7 @@ const char* reg_name(int idx) {
 void   isa_reg_display(){
   printf(" name       DEC         HEX\n");
   for(int i = 0; i < 32; ++i){
-    printf("%3s    %-10u  %#-10x\n",reg_name(i), gpr(i), gpr(i));
+    printf("%3s    %-10lu  %#-10lx\n",reg_name(i), gpr(i), gpr(i));
   }
 }
 

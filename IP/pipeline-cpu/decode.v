@@ -88,14 +88,7 @@ wire rv32I_B_TYPE    		    = 	opcode_B_TYPE;
 wire rv32I_J_TYPE  			    = 	opcode_J_TYPE;
 wire rv32I_U_TYPE   		    = 	opcode_U_TYPE;
 //------------------func3----------------------------------------------------------------
-wire func3_000                  = (rv32I_func3 == 3'b000);
-wire func3_001                  = (rv32I_func3 == 3'b001);
-wire func3_010                  = (rv32I_func3 == 3'b010);
-wire func3_011                  = (rv32I_func3 == 3'b011);
-wire func3_100                  = (rv32I_func3 == 3'b100);
-wire func3_101                  = (rv32I_func3 == 3'b101);
-wire func3_110                  = (rv32I_func3 == 3'b110);
-wire func3_111                  = (rv32I_func3 == 3'b111);
+
 
 //R_TYPE
 wire func3_R_add_sub            = func3_000;
@@ -206,13 +199,7 @@ wire rv32I_S_sw    				= (rv32I_S_TYPE & func3_S_sw);
 wire rv32I_J_jal   				= (rv32I_J_TYPE);
 
 //--------------------------------------imm--------------------------------
-wire [31:0] imm_U_TYPE 			=  { rv32I_instr[31:12] , 12'd0};
-wire [31:0] imm_I_TYPE 			=  { {20{rv32I_instr[31]}}, rv32I_instr[31:20]} ;
-wire [31:0] imm_I_SHAMT 		=  { 27'd0,rv32I_instr[24:20]};
-wire [31:0] imm_S_TYPE 			=  { {20{rv32I_instr[31]}}, rv32I_instr[31:25], rv32I_instr[11:7]} ;
-wire [31:0] imm_R_TYPE			=  	 32'd0;
-wire [31:0] imm_B_TYPE 			=  {{{{20{rv32I_instr[31]}},  rv32I_instr[31], rv32I_instr[7], rv32I_instr[30:25],  rv32I_instr[11:8] }  << 1'b1}};
-wire [31:0] imm_J_TYPE 			=  {{{ 12{rv32I_instr[31]}},  rv32I_instr[31], rv32I_instr[19:12], rv32I_instr[20], rv32I_instr[30:21]}  << 1'b1 };
+
 //-------------------------------------------------decode框架---end-----------------------------------------------------
 
 wire opcode_I_Logic_Operator 	= (rv32I_opcode == 7'b0010011);

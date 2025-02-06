@@ -89,7 +89,7 @@ static int cmd_si  (char *args){
     cpu_exec(1u); 
   }else{    
     word_t cnt = arg2val(args);  
-    printf("si [%u]\n", cnt);
+    printf("si [%lu]\n", cnt);
     cpu_exec(cnt);
   }  
   return 0;
@@ -151,7 +151,7 @@ static int cmd_p   (char *args){
   bool success = true;
   word_t value = get_expr_val(args, &success);
   if(success == true){
-    printf("%u(0x%x)\n", value,value);
+    printf("%lu(0x%lx)\n", value,value);
   }
   return 0;
 }
@@ -239,7 +239,7 @@ void get_memory_val(paddr_t mem_addr, int length){
   }
   //执行
   for(int i = 0; i < length; ++i){
-    printf("[0x%x]:0x%08x\n", mem_addr, pmem_read(mem_addr, 4u));
+    printf("[0x%lx]:0x%08lx\n", mem_addr, pmem_read(mem_addr, 4u));
     mem_addr = mem_addr + 4u;
   }
 }

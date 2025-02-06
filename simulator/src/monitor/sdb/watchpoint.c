@@ -78,8 +78,8 @@ void wp_check_and_update(){
       if(new_value != old_value){
         wp[i].value = new_value;
         printf("\nwatchpoint %d:%s\n\n", i, wp[i].expr);
-        printf("Old value = %u(0x%x)\n", old_value, old_value);
-        printf("New value = %u(0x%x)\n", new_value, new_value); 
+        printf("Old value = %lu(0x%lx)\n", old_value, old_value);
+        printf("New value = %lu(0x%lx)\n", new_value, new_value); 
         stop_flag = 1;
       }       
     }
@@ -95,7 +95,7 @@ void wp_print(){
   for(int i = 0; i < WP_NUMBER; ++i){
     if(wp[i].keep == 1){
       cnt++;
-      printf("No=[%d], Value=[%u(0x%x)], Keep=[%d], Expr=[\"%s\"]\n", wp[i].number, wp[i].value,wp[i].value,wp[i].keep, wp[i].expr);
+      printf("No=[%d], Value=[%lu(0x%lx)], Keep=[%d], Expr=[\"%s\"]\n", wp[i].number, wp[i].value,wp[i].value,wp[i].keep, wp[i].expr);
     }
   }
   if(cnt == 0){

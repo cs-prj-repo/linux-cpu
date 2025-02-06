@@ -7,7 +7,6 @@
 typedef struct {
   word_t gpr[GPR_NUM];
   vaddr_t pc;
-
   word_t csr[CSR_NUM];
 } CPU_state;
 

@@ -1,5 +1,5 @@
-TOPNAME :=CPU
-CPU_DIR=$(CPU_HOME)/IP/pipeline-cpu
+TOPNAME :=top_cpu
+CPU_DIR=$(CPU_HOME)/IP/linux-cpu
 
 
 
@@ -12,7 +12,7 @@ VL_ROOT_HEADER=\\\"$(PREFIX_NAME).h\\\"
 
 
 VERILATOR = verilator
-VERILATOR_CFLAGS += -MMD --build -j 8 -trace -cc -O0 --x-assign fast --x-initial fast --noassert -I$(CPU_DIR)
+VERILATOR_CFLAGS += -MMD --build -j 8 -trace-fst -cc -O0 --x-assign fast --x-initial fast --noassert -I$(CPU_DIR)
 VERILATOR_CFLAGS += $(TOPNAME_FLAG)
 VERILATOR_CFLAGS += $(PREFIX_FLAG)
 
@@ -53,7 +53,7 @@ $(BIN): $(VSRCS) $(CSRCS)
 		--Mdir $(OBJ_DIR) --exe -o $(abspath $(BIN))
 
 override ARGS ?= --log=$(BUILD_DIR)/npc-log.txt
-override ARGS += --diff=$(SIM_HOME)/nemu/riscv32-nemu-interpreter-so
+override ARGS += --diff=$(SIM_HOME)/diff/riscv64-spike-so
 override ARGS += --batch
 
 all: default
@@ -61,7 +61,7 @@ all: default
 run: clean $(BIN)
 	$(BIN) $(ARGS) $(IMAGE)
 sim: 
-	gtkwave waveform.vcd
+	gtkwave waveform.fst
 
 clean:
 	rm -rf $(BUILD_DIR)

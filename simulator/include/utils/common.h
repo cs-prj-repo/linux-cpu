@@ -10,17 +10,17 @@
 #include <string.h>
 #include <stdlib.h>
 #include <autoconf.h>
-#define __GUEST_ISA__ riscv32
+#define __GUEST_ISA__ riscv64
 
 
 //Type
-typedef uint32_t  word_t;
-typedef  int32_t sword_t;
+typedef uint64_t  word_t;
+typedef  int64_t sword_t;
 typedef word_t   vaddr_t;
 typedef word_t   paddr_t;
 //
-#define FMT_WORD  "0x%08" PRIx32
-#define FMT_PADDR "0x%08" PRIx32
+#define FMT_WORD  "0x%16" PRIx64
+#define FMT_PADDR "0x%16" PRIx64
 
 //memory
 #define PMEM_LEFT  ((paddr_t)CONFIG_MBASE)

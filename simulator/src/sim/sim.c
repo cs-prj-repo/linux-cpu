@@ -4,6 +4,7 @@
 #include <sys/types.h>
 #include <verilated.h>
 #include <verilated_vcd_c.h>
+#include "verilated_fst_c.h"
 #include <npc.h>
 
 
@@ -13,7 +14,7 @@
 #include <defs.h>
 
 extern CPU_state  cpu;
-extern SIMState  sim_state;
+extern SIMState   sim_state;
 uint64_t          g_nr_guest_inst = 0;
 static uint64_t   g_timer = 0; // unit: us
 static bool       g_print_step = false;
@@ -21,20 +22,20 @@ static bool       g_print_step = false;
 
 
 static TOP_NAME dut;  			    //CPU
-static VerilatedVcdC *m_trace;  //仿真波形
+static VerilatedFstC *m_trace = NULL;  //仿真波形
 static word_t sim_time = 0;			//时间
 static word_t clk_count = 0;
 
 void npc_get_clk_count(){
-  printf("你的处理器运行了%u个clk\n", clk_count);
+  printf("你的处理器运行了%lu个clk\n", clk_count);
 }
 
 
 void npc_open_simulation(){
   Verilated::traceEverOn(true);
-  m_trace= new VerilatedVcdC;
+  m_trace= new VerilatedFstC;
   dut.trace(m_trace, 5);
-  m_trace->open("waveform.vcd");
+  m_trace->open("waveform.fst");
   Log("NPC open simulation");
 }
 void npc_close_simulation(){
@@ -46,7 +47,7 @@ void npc_close_simulation(){
 extern uint32_t * reg_ptr;
 void update_cpu_state(){
   cpu.pc = dut.cur_pc;
-  memcpy(&cpu.gpr[0], reg_ptr, 4 * 32);
+  memcpy(&cpu.gpr[0], reg_ptr, 8 * 32);
 }
 void npc_single_cycle() {
   dut.clk = 0;  dut.eval();   
@@ -54,8 +55,6 @@ void npc_single_cycle() {
   dut.clk = 1;  dut.eval(); 
   IFDEF(CONFIG_NPC_OPEN_SIM,   m_trace->dump(sim_time++));
   clk_count++;
-  update_cpu_state();
-
 }
 void npc_reset(int n) {
   dut.rst = 1;
@@ -66,7 +65,8 @@ void npc_reset(int n) {
 void npc_init() {
   IFDEF(CONFIG_NPC_OPEN_SIM, npc_open_simulation());  
   npc_reset(3);
-
+  printf("right\n");
+  update_cpu_state();
   if(cpu.pc != 0x80000000){
     npc_close_simulation();
     Assert(cpu.pc== 0x80000000, "npc初始化之后, cpu.pc的值应该为0x80000000");
