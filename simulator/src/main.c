@@ -3,6 +3,6 @@
 
 int main(int argc, char **argv){
   init_monitor(argc, argv);
-  sdb_mainloop();
+  cpu_exec(UINT64_MAX);
   return 0;
 }

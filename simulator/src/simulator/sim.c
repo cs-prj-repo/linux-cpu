@@ -6,9 +6,6 @@
 #include <verilated_vcd_c.h>
 #include "verilated_fst_c.h"
 #include <npc.h>
-
-
-
 #include <simulator_state.h>
 #include <common.h>
 #include <defs.h>
@@ -36,11 +33,11 @@ void npc_open_simulation(){
   m_trace= new VerilatedFstC;
   dut.trace(m_trace, 5);
   m_trace->open("waveform.fst");
-  Log("NPC open simulation");
+  Log("打开波形追踪");
 }
 void npc_close_simulation(){
   IFDEF(CONFIG_NPC_OPEN_SIM, 	m_trace->close());
-  IFDEF(CONFIG_NPC_OPEN_SIM, Log("NPC close simulation"));
+  IFDEF(CONFIG_NPC_OPEN_SIM, Log("关闭波形追踪"));
 }
 
 
@@ -64,13 +61,13 @@ void npc_reset(int n) {
 
 void npc_init() {
   IFDEF(CONFIG_NPC_OPEN_SIM, npc_open_simulation());  
-  npc_reset(3);
-  printf("right\n");
+  npc_reset(1);
   update_cpu_state();
   if(cpu.pc != 0x80000000){
     npc_close_simulation();
     Assert(cpu.pc== 0x80000000, "npc初始化之后, cpu.pc的值应该为0x80000000");
   }
+  Log("处理器初始化完毕");
 }
 
 
@@ -113,6 +110,7 @@ void statistic() {
 
 
 void cpu_exec(uint64_t n) {
+  printf("111\n");
   g_print_step = (n < MAX_INST_TO_PRINT); 
   switch (sim_state.state) {
     case SIM_END: 

@@ -4,19 +4,10 @@
 #include <defs.h>   //api
 
 static void welcome() {
-  Log("Trace and IRingTrace: %s", MUXDEF(CONFIG_TRACE,        ANSI_FMT("ON", ANSI_FG_GREEN), ANSI_FMT("OFF", ANSI_FG_RED)));
-  Log("MemoryTrace:          %s", MUXDEF(CONFIG_MEMORY_TRACE, ANSI_FMT("ON", ANSI_FG_GREEN), ANSI_FMT("OFF", ANSI_FG_RED)));
-  Log("FuncTrace:            %s", MUXDEF(CONFIG_FUNC_TRACE,   ANSI_FMT("ON", ANSI_FG_GREEN), ANSI_FMT("OFF", ANSI_FG_RED)));
-  Log("DeviceTrace:          %s", MUXDEF(CONFIG_DEVICE_TRACE, ANSI_FMT("ON", ANSI_FG_GREEN), ANSI_FMT("OFF", ANSI_FG_RED)));
-  IFDEF(CONFIG_TRACE, Log("If ITrace and MemoryTrace is enabled, a log file will be generated "
-        "to record the trace. This may lead to a large log file. "
-        "If it is not necessary, you can disable it in menuconfig"));
   Log("Build time: %s, %s", __TIME__, __DATE__);
   printf("Welcome to %s-npc!\n", ANSI_FMT(str(__GUEST_ISA__), ANSI_FG_YELLOW ANSI_BG_RED));
   printf("For help, type \"help\"\n");
 }
-
-
 
 static char *img_file = NULL;
 static char *log_file = NULL;
@@ -25,7 +16,7 @@ static int   difftest_port = 1234;
 
 static long load_img() {
   if (img_file == NULL) {
-    Log("No image is given. Use the default build-in image.");
+    Log("运行的是内置程序");
     return 4096; // built-in image size
   }
   FILE *fp = fopen(img_file, "rb");
@@ -40,6 +31,9 @@ static long load_img() {
 
   fclose(fp);
   return size;
+}
+void sdb_set_batch_mode(){
+
 }
 
 #include <getopt.h> //
@@ -73,39 +67,17 @@ static int parse_args(int argc, char *argv[]) {
   return 0;
 }
 
-//测试数据
-
-//lw
-//
-//测试数据
-//0x000008103, //lb x2 0(x1)
-
-  // 下面的指令用于测试lb, lh, lw, lbu, lhu
-  // 0x00008103, //lb x2  0(x1),     R[x2] = mem[x1 + 0]
-  // 0x002182b3, //add x5, x3, x2,   R[x5] = R[x3] + R[x2]
-
-
-//测试读后写的
-// 0x00100093,  //addi x1, x0, 1  R[x1] = R[x0] + 1
-// 0x00200113,  //addi x2, x0, 2  R[x2] = R[x0] + 2
-// 0x00208193,  //addi x3, x1, 2  R[x3] = R[x1] + 2
-
-
 static const uint32_t img [] = {  
-  0x000a2083, //      R[x1] = mem[R[x20]
+  0x0008e1b7,
   0x001a2023, //  mem[R[x20]] = R[x1]
   0x000a2103, //R[x2] = mem[R[x21]]
   0x00100073,  // ebreak (used as nemu_trap)
 //0xdeadbeef,  // some data
 };
 
-// F D E M
-
-
 void load_builded_img(){
  memcpy(guest_to_host(RESET_VECTOR), img, sizeof(img));
 }
-
 
 void init_monitor(int argc, char **argv){
   parse_args(argc, argv);
@@ -116,9 +88,7 @@ void init_monitor(int argc, char **argv){
   long img_size = load_img();
   npc_init();
   init_difftest(diff_so_file,img_size, difftest_port);
-//  init_trace();
-  init_sdb();
-  init_disasm("riscv32-pc-linux-gnu");
+  init_disasm("riscv64-pc-linux-gnu");
   welcome();
 }
 

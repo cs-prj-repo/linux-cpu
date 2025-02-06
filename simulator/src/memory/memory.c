@@ -13,7 +13,7 @@ void init_mem() {
   assert(pmem);
 #endif
   IFDEF(CONFIG_MEM_RANDOM, memset(pmem, rand(), CONFIG_MSIZE));
-  Log("physical memory area [" FMT_PADDR ", " FMT_PADDR "]", PMEM_LEFT, PMEM_RIGHT);
+  Log("物理内存区域为 [" FMT_PADDR ", " FMT_PADDR "]", PMEM_LEFT, PMEM_RIGHT);
 }
 
 uint8_t* guest_to_host(paddr_t paddr) { return pmem + paddr - CONFIG_MBASE; }
@@ -42,11 +42,7 @@ static inline bool in_pmem(paddr_t addr) {
   return addr >= CONFIG_MBASE && addr <= CONFIG_MBASE + CONFIG_MSIZE;
 }
 
-
 extern CPU_state cpu;
-
-
-
 word_t pmem_read(paddr_t addr, int len){
   return host_read(guest_to_host(addr), len);
 }
