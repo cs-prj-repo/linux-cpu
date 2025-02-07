@@ -5,9 +5,9 @@
 #include "verilated_dpi.h" // For VerilatedDpiOpenVar and other DPI related definitions
 
 
-extern "C" void dpi_ebreak(int pc){
-//	printf("下一个要执行的指令是ebreak\n");
-	SIMTRAP(pc, 0);
+extern "C" void dpi_ebreak(){
+	printf("下一个要执行的指令是ebreak\n");
+	SIMTRAP(0x80000000, 0);
 }
 
 extern "C" uint64_t dpi_mem_read(uint64_t addr, uint64_t len){

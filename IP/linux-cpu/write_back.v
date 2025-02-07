@@ -1,17 +1,17 @@
-
 module write_back(      
-       input [9:0]   opcode_info_i,
-       input [31:0]  regW_i_alu_result,
-       input [31:0]  regW_i_mem_rdata,
-       output[4 :0]  wb_rd_id_o,
-       output[31:0]  wb_rd_write_data_o  
+       input  wire [11:0]   regW_i_opcode_info,
+       input  wire [63:0]   regW_i_alu_result,
+       input  wire [63:0]   regW_i_memdata,
+       input  wire [4:0]    regW_i_rd,
+       input  wire          regW_i_reg_wen,
+
+
+       output wire [4:0]    write_back_o_rd,
+       output wire [63:0]   write_back_o_data,
+       output wire          write_back_o_reg_wen
 );
 
-
-wire    op_load = opcode_info_i[4];
-
-assign  wb_rd_write_data_o = op_load ? mem_read_data_i : alu_result_i;
-
-assign  wb_rd_write_en_o   = rd_write_en_i;
-assign  wb_rd_id_o         = rd_id_i;
+assign write_back_o_rd      = regW_i_rd;
+assign write_back_o_data    = regW_i_alu_result;
+assign write_back_o_reg_wen = regW_i_reg_wen;
 endmodule

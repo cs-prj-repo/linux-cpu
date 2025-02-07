@@ -37,7 +37,7 @@ void npc_open_simulation(){
 }
 void npc_close_simulation(){
   IFDEF(CONFIG_NPC_OPEN_SIM, 	m_trace->close());
-  IFDEF(CONFIG_NPC_OPEN_SIM, Log("关闭波形追踪"));
+  IFDEF(CONFIG_NPC_OPEN_SIM, Log("波形追踪已完成,可以通过make sim命令查看"));
 }
 
 
@@ -65,11 +65,12 @@ void npc_init() {
   update_cpu_state();
   if(cpu.pc != 0x80000000){
     npc_close_simulation();
-    Assert(cpu.pc== 0x80000000, "npc初始化之后, cpu.pc的值应该为0x80000000");
+    printf("处理器的值目前为pc=0x%lx, 处理器初始化/复位之后, PC值应该为0x80000000\n", cpu.pc);
+    printf("处理器初始化/复位的PC值不正确, 程序退出\n");
+    exit(1);
   }
   Log("处理器初始化完毕");
 }
-
 
 
 
@@ -77,22 +78,25 @@ word_t commit_pre_pc = 0;
 //si 1执行一条指令就确定是一次commit, 而不是多次clk
 void execute(uint64_t n){
   for (   ;n > 0; n --) {
-    if (sim_state.state != SIM_RUNNING) {
-      if(sim_state.state == SIM_END) printf("下一条要执行的指令是----![信息待添加]\n");
-      break; 
-    }
-    while(dut.commit != 1){
+    while(dut.commit != 1){      
       npc_single_cycle();
     }
-    word_t commit_pc = dut.commit_pc;
-    commit_pre_pc = dut.commit_pre_pc;
-    npc_single_cycle();                             //再执行一次,该指令执行完毕.   
+    word_t commit_pc     = dut.commit_pc;
+    word_t commit_pre_pc = dut.commit_pre_pc;
+    word_t commit_instr  = dut.commit_instr;
+
+    if(dut.commit_instr == 0x00100073){
+      instr_trace(commit_pc, commit_instr);
+      printf("由于仿真框架将[ebreak]指令看作是程序结束的指令，执行[ebreak]指令之后，我们退出程序\n");
+      sim_state.state = SIM_END;
+      break;
+    }
+    npc_single_cycle();                             
     update_cpu_state();
-    IFDEF(CONFIG_ITRACE,   instr_trace(commit_pc));
-    IFDEF(CONFIG_DIFFTEST, difftest_step(commit_pc, commit_pc + 4));  
+    IFDEF(CONFIG_ITRACE,   instr_trace  (commit_pc, commit_instr));
+    IFDEF(CONFIG_DIFFTEST, difftest_step(commit_pc, commit_pre_pc));  
   }
 }
-
 
 void statistic() {
   npc_close_simulation();

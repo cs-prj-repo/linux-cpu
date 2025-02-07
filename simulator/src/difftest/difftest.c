@@ -57,17 +57,10 @@ void init_difftest(char *ref_so_file, long img_size, int port) {
   Log("Difftest已打开");
 }
 
-
-//ref是参考处理器执行完对应指令后的数据
-//pc是执行指令的地址
-extern word_t commit_pre_pc;
-
-static void checkregs(CPU_state *ref, vaddr_t pc) {
-  //目前只对比
-  
-  if(commit_pre_pc != ref->pc){
+static void checkregs(CPU_state *ref, vaddr_t pc, paddr_t next_pc) {  
+  if(next_pc != ref->pc){
       printf("[NPC] Difftest Error: 在执行完pc=[%lx]指令之后,DUT和REF的状态出现不一致:\n", pc);
-      printf("[参考处理器.pc]=0x%lx\n[你的处理器.pc]=0x%lx\n", ref->pc, commit_pre_pc);
+      printf("[参考处理器.pc]=0x%lx\n[你的处理器.pc]=0x%lx\n", ref->pc, next_pc);
       printf("\n-----------以下是所有寄存器数据：\n");
       for(int i = 0;  i < 32; ++i){
         printf("[参考处理器.%s]=0x%lx, [你的处理器.%s]=0x%lx\n", reg_name(i), ref->gpr[i], reg_name(i), gpr(i));
@@ -81,41 +74,20 @@ static void checkregs(CPU_state *ref, vaddr_t pc) {
     if(ref->gpr[i] != cpu.gpr[i]){  
       printf("[NPC] Difftest Error: 在执行完pc=[%lx]指令之后,DUT和REF状态出现不一致:\n", pc);
       printf("[参考处理器.%s]=0x%lx, [你的处理器.%s]=0x%lx\n", reg_name(i), ref->gpr[i], reg_name(i), gpr(i));
-
       npc_close_simulation();
       printf("下面将会产生一个makefile错误,暂时不用担心\n");
       exit(1);
-
     }
   }
 }
 
 
 //difftest_step
-void difftest_step(vaddr_t pc, vaddr_t next_pc) {
+void difftest_step(paddr_t pc, paddr_t next_pc) {
   CPU_state ref_r;
-  if (skip_dut_nr_inst > 0) {
-    ref_difftest_regcpy(&ref_r, DIFFTEST_TO_DUT);
-    if (ref_r.pc == next_pc) {
-      skip_dut_nr_inst = 0;
-      checkregs(&ref_r, next_pc);
-      return;
-    }
-    skip_dut_nr_inst --;
-    if (skip_dut_nr_inst == 0)
-      panic("difftest_step here");
-//      panic("can not catch up with ref.pc = " FMT_WORD " at pc = " FMT_WORD, ref_r.pc, pc);
-    return;
-  }
-
-  if (is_skip_ref) {
-    ref_difftest_regcpy(&cpu, DIFFTEST_TO_REF);
-    is_skip_ref = false;
-    return;
-  }
   ref_difftest_exec(1);
   ref_difftest_regcpy(&ref_r, DIFFTEST_TO_DUT); //把REF的内容
-  checkregs(&ref_r, pc);
+  checkregs(&ref_r, pc, next_pc);
 }
 
 #else

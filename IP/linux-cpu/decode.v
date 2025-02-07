@@ -4,19 +4,24 @@ module decode(
     input wire rst,                    // 复位信号
     input wire [31:0] regD_i_instr,    // 输入指令
 
-	input wire [63:0] 	write_back_i_reg_wdata,
+	//要写回的数据信息
+	input wire [63:0] 	write_back_i_data,
 	input wire [4:0]  	write_back_i_rd,
 	input wire 		  	write_back_i_reg_wen,
 
+	//译码得出来的控制信息
 	output wire [27:0]  decode_o_alu_info,
 	output wire [11:0]	decode_o_opcode_info,
 	output wire [5:0]	decode_o_branch_info,
 	output wire [10:0]  decode_o_load_store_info,
+	//译码得出来的数据信息
+    output wire [63:0]  decode_o_regdata1,   
+    output wire [63:0]  decode_o_regdata2,   
+	output wire [63:0]  decode_o_imm,
 
-    // 添加的输出信号，均为64位宽
-    output wire [63:0] decode_o_reg_rdata1,  // 第一个读出数据
-    output wire [63:0] decode_o_reg_rdata2,   // 第二个读出数据
-	output wire [63:0] decode_o_imm
+	//要写回的数据
+	output wire [4:0]	decode_o_rd,
+	output wire 	   	decode_o_reg_wen
 );
 
 
@@ -217,17 +222,16 @@ assign decode_o_alu_info = {
 };
 
 //need_rs1, need_rs2, need_rd在
-wire decode_o_need_rs1 = (~inst_lui) & (~inst_auipc)  & (~inst_jal);
-wire decode_o_need_rs2 = (inst_alu_reg | inst_alu_regw | inst_branch | inst_store);
-wire decode_o_need_rd =  (~inst_branch) & (~inst_store);
-
+// wire decode_o_need_rs1 = (~inst_lui) & (~inst_auipc)  & (~inst_jal);
+// wire decode_o_need_rs2 = (inst_alu_reg | inst_alu_regw | inst_branch | inst_store);
+// wire decode_o_need_rd =  (~inst_branch) & (~inst_store);
 
 
 wire [63:0] inst_i_imm = { {52{instr[31]}}, instr[31:20] };		
 wire [63:0] inst_s_imm = { {52{instr[31]}}, instr[31:25], instr[11:7] };	
 wire [63:0] inst_b_imm = { {51{instr[31]}}, instr[31],    instr[7],      instr[30:25], instr[11:8 ], 1'b0};
 wire [63:0] inst_j_imm = { {43{instr[31]}}, instr[31],    instr[19:12],  instr[20],    instr[30:21], 1'b0};	
-wire [63:0] inst_u_imm = { instr[31:12], 44'b0};		
+wire [63:0] inst_u_imm = { 32'd0, instr[31:12], 12'd0};		
 wire [63:0] inst_r_imm = 64'd0;	
 
 wire inst_i_type = inst_load | inst_jalr | inst_alu_imm | inst_alu_immw;
@@ -237,35 +241,30 @@ wire inst_r_type = inst_alu_reg | inst_alu_regw;
 wire inst_s_type = inst_store;
 wire inst_b_type = inst_branch;
 
-assign decode_o_imm = inst_i_type ? inst_i_imm : 
-					inst_s_type ? inst_s_imm :
-					inst_b_type ? inst_b_imm :
-					inst_j_type ? inst_j_imm :
-					inst_u_type ? inst_u_imm : 
-					inst_r_type ? inst_r_imm : 64'd0;
+assign decode_o_imm = 	inst_i_type ? inst_i_imm : 
+						inst_s_type ? inst_s_imm :
+						inst_b_type ? inst_b_imm :
+						inst_j_type ? inst_j_imm :
+						inst_u_type ? inst_u_imm : 
+						inst_r_type ? inst_r_imm : 64'd0;
 
+assign decode_o_rd =  rd;
+assign decode_o_reg_wen = inst_i_type | inst_u_type;
 
-
-
-
-// output declaration of module regfile
-wire [63:0] regfile_o_reg_rdata1;
-wire [63:0] regfile_o_reg_rdata2;
 
 regfile u_regfile(
-	.clk                    	(clk                     ),
-	.rst                    	(rst                     ),
-	.write_back_i_rd        	(write_back_i_rd         ),
-	.write_back_i_reg_wdata 	(write_back_i_reg_wdata  ),
-	.write_back_i_reg_wen   	(write_back_i_reg_wen    ),
-	.decode_i_rs1           	(rs1            ),
-	.decode_i_rs2           	(rs2            ),
-	.regfile_o_reg_rdata1   	(regfile_o_reg_rdata1    ),
-	.regfile_o_reg_rdata2   	(regfile_o_reg_rdata2    )
+	.clk                     	(clk                      ),
+	.rst                     	(rst                      ),
+	.write_back_i_rd      		(write_back_i_rd       ),
+	.write_back_i_data    		(write_back_i_data     ),
+	.write_back_i_reg_wen 		(write_back_i_reg_wen  ),
+	.decode_i_rs1            	(rs1             		),
+	.decode_i_rs2            	(rs2             		),
+	.regfile_o_regdata1      	(decode_o_regdata1       ),
+	.regfile_o_regdata2      	(decode_o_regdata2       )
 );
 
-assign decode_o_reg_rdata1 = regfile_o_reg_rdata1;
-assign decode_o_reg_rdata2 = regfile_o_reg_rdata2;
+
 endmodule
 
 

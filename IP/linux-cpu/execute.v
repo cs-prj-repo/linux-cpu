@@ -1,32 +1,33 @@
 module execute(
-    input wire          regE_i_alu_info,
+    input wire  [27:0]  regE_i_alu_info,
     input wire  [11:0]  regE_i_opcode_info,
-    input wire          regE_i_branch_info,
+    input wire  [5:0]   regE_i_branch_info,
+    input wire  [10:0]  regE_i_load_store_info,
 
-
-    input wire [63:0]   regE_i_reg_rdata1,
-    input wire [63:0]   regE_i_reg_rdata2,
+    input wire [63:0]   regE_i_regdata1,
+    input wire [63:0]   regE_i_regdata2,
     input wire [63:0]   regE_i_imm,
     input wire [63:0]   regE_i_pc,
 
-    output wire [63:0]  regE_o_alu_result
+    output wire [63:0]  execute_o_alu_result
 );
 
-wire op_alu_imm    = opcode_info_i[11];
-wire op_alu_immw   = opcode_info_i[10];
-wire op_alu_reg    = opcode_info_i[9 ];
-wire op_alu_regw   = opcode_info_i[8 ];
-wire op_branch     = opcode_info_i[7 ];
-wire op_jal        = opcode_info_i[6 ];
-wire op_jalr       = opcode_info_i[5 ];
-wire op_load       = opcode_info_i[4 ];
-wire op_store      = opcode_info_i[3 ];
-wire op_lui        = opcode_info_i[2 ];
-wire op_auipc      = opcode_info_i[1 ];
+wire op_lui        = regE_i_opcode_info[11 ];
+wire op_auipc      = regE_i_opcode_info[10 ];
+wire op_jal        = regE_i_opcode_info[9 ];
+wire op_jalr       = regE_i_opcode_info[8 ];
+wire op_alu_reg    = regE_i_opcode_info[7 ];
+wire op_alu_regw   = regE_i_opcode_info[6 ];
+wire op_alu_imm    = regE_i_opcode_info[5];
+wire op_alu_immw   = regE_i_opcode_info[4];
+wire op_load       = regE_i_opcode_info[3 ];
+wire op_store      = regE_i_opcode_info[2 ];
+wire op_branch     = regE_i_opcode_info[1 ];
+wire op_system     = regE_i_opcode_info[0];
 
 
-assign alu_result = op_lui   ?      regE_i_imm :
-                    op_auipc ? pc + regE_i_imm : 64'd0;
+assign execute_o_alu_result = op_lui   ?             regE_i_imm :
+                              op_auipc ? regE_i_pc + regE_i_imm : 64'd0;
 
 
 //branch

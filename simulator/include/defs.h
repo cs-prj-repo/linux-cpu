@@ -67,8 +67,7 @@ static 		word_t arg2val(char *arg);
 void 		init_disasm(const char *triple);
 void 		disassemble(char *str, int size, uint64_t pc, uint8_t *code, int nbyte);
 
-
-void difftest_step(vaddr_t pc, vaddr_t npc);
+void difftest_step(paddr_t pc, paddr_t npc);
 bool isa_difftest_checkregs(CPU_state *ref_r, vaddr_t pc);
 
 
@@ -91,6 +90,6 @@ word_t	 pmem_read(paddr_t addr, int len);
 void	 pmem_write(paddr_t addr, int len, word_t data);
 
 
-void     instr_trace(word_t pc);
+void     instr_trace(word_t pc, word_t commit_instr);
 
 #endif

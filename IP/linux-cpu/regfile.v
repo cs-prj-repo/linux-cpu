@@ -6,14 +6,14 @@ module regfile(
 
     //写回的数据
     input   wire [4:0]      write_back_i_rd,
-    input   wire [63:0]     write_back_i_reg_wdata,
+    input   wire [63:0]     write_back_i_data,
     input   wire            write_back_i_reg_wen,
 
     //译码来的数据
     input   wire [4 :0]     decode_i_rs1,        
     input   wire [4 :0]     decode_i_rs2,        
-    output  wire [63:0]     regfile_o_reg_rdata1, 
-    output  wire [63:0]     regfile_o_reg_rdata2  
+    output  wire [63:0]     regfile_o_regdata1, 
+    output  wire [63:0]     regfile_o_regdata2  
 );
 reg [63:0] regfile[31:0]; // Changed the register file to hold 32 entries of 64-bit each.
 
@@ -28,18 +28,17 @@ initial begin
     for (i = 0; i < 32; i = i + 1) begin
         regfile[i] = {32'b0, i}; // Initializing with index values. Adjust as necessary.
     end
-    regfile[20] = 64'h8000000000000000; // Example initialization for specific register.
 end
 
-assign regfile_o_reg_rdata1 = decode_i_rs1 == 5'd0 ? 64'd0 : regfile[decode_i_rs1];
-assign regfile_o_reg_rdata2 = decode_i_rs2 == 5'd0 ? 64'd0 : regfile[decode_i_rs2];
+assign regfile_o_regdata1 = decode_i_rs1 == 5'd0 ? 64'd0 : regfile[decode_i_rs1];
+assign regfile_o_regdata2 = decode_i_rs2 == 5'd0 ? 64'd0 : regfile[decode_i_rs2];
 
 always @(posedge clk) begin
     if(rst) begin
         regfile[0]  <= 64'd0;
     end
     else if(write_back_i_reg_wen && write_back_i_rd != 5'd0) begin // Check for non-zero destination register.
-        regfile[write_back_i_rd] <= write_back_i_reg_wdata;
+        regfile[write_back_i_rd] <= write_back_i_data;
     end
 end
 
