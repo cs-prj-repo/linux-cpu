@@ -1,3 +1,3 @@
-# pipeline-cpu
+# linux-cpu
 
 # 致谢
