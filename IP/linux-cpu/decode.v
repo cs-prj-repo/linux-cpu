@@ -19,11 +19,15 @@ module decode(
 	input wire [4:0]  	write_back_i_rd,
 	input wire 		  	write_back_i_reg_wen,
 
-	//译码得出来的控制信息
-	output wire [27:0]  decode_o_alu_info,
+	output wire [13:0]  decode_o_alu_info,
+	output wire [4:0 ]  decode_o_mul_info,
+	output wire [3:0]   decode_o_div_info,
+	output wire [3:0]   decode_o_rem_info,
+
 	output wire [11:0]	decode_o_opcode_info,
 	output wire [5:0]	decode_o_branch_info,
 	output wire [10:0]  decode_o_load_store_info,
+
 	//译码得出来的数据信息
     output wire [63:0]  decode_o_regdata1,   
     output wire [63:0]  decode_o_regdata2,   
@@ -33,8 +37,6 @@ module decode(
 	output wire [4:0]	decode_o_rd,
 	output wire 	   	decode_o_reg_wen
 );
-
-
 
 
 wire [31:0] instr  = regD_i_instr;
@@ -198,36 +200,44 @@ assign decode_o_load_store_info = {
 };
 
 
+
 assign decode_o_alu_info = {
 			     (inst_add  	| inst_addi ),  // 9
-			     (inst_sub              	),  // 8
-			  	 (inst_sll  	| inst_slli ),  // 7
-			     (inst_slt  	| inst_slti ),  // 6
-			     (inst_sltu 	| inst_sltiu),  // 5
-			     (inst_xor  	| inst_xori ),  // 4
-			     (inst_srl  	| inst_srli ),  // 3
-			     (inst_sra  	| inst_srai ),  // 2
-			     (inst_or   	| inst_ori  ),  // 1
-			     (inst_and  	| inst_andi ),  // 0   
+			     (inst_sub      | inst_subw ),  // 8
+			  	 (inst_sll  	| inst_slli ),
+			     (inst_slt  	| inst_slti ),
+			     (inst_sltu 	| inst_sltiu),  
+			     (inst_xor  	| inst_xori ),  
+			     (inst_srl  	| inst_srli ),  
+			     (inst_sra  	| inst_srai ),
+			     (inst_or   	| inst_ori  ),  
+			     (inst_and  	| inst_andi ),
 				 (inst_addw 	| inst_addiw),
-				 (inst_subw 	 			),
 				 (inst_sllw 	| inst_slliw),
 				 (inst_srlw 	| inst_srliw),
-				 (inst_sraw 	| inst_sraiw),
-				 (inst_mul  				),
+				 (inst_sraw 	| inst_sraiw) 
+};
+
+assign decode_o_mul_info = {
+				 (inst_mul  			    ),
 				 (inst_mulh 				),
 				 (inst_mulhsu				),
 				 (inst_mulhu				),
+				 (inst_mulw					)
+};
+assign decode_o_div_info = {
 				 (inst_div					),
 				 (inst_divu					),
+				 (inst_divw					),
+				 (inst_divuw				)
+};
+assign decode_o_rem_info = {
 				 (inst_rem					),
 				 (inst_remu					),
-				 (inst_mulw					),
-				 (inst_divw					),
-				 (inst_divuw				),
 				 (inst_remw					),
-				 (inst_remuw				)				
+				 (inst_remuw				)
 };
+
 //need_rs1, need_rs2, need_rd在
 // wire decode_o_need_rs1 = (~inst_lui) & (~inst_auipc)  & (~inst_jal);
 // wire decode_o_need_rs2 = (inst_alu_reg | inst_alu_regw | inst_branch | inst_store);
@@ -238,7 +248,7 @@ wire [63:0] inst_i_imm = { {52{instr[31]}}, instr[31:20] };
 wire [63:0] inst_s_imm = { {52{instr[31]}}, instr[31:25], instr[11:7] };	
 wire [63:0] inst_b_imm = { {51{instr[31]}}, instr[31],    instr[7],      instr[30:25], instr[11:8 ], 1'b0};
 wire [63:0] inst_j_imm = { {43{instr[31]}}, instr[31],    instr[19:12],  instr[20],    instr[30:21], 1'b0};	
-wire [63:0] inst_u_imm = { 32{instr}, instr[31:12], 12'd0};		
+wire [63:0] inst_u_imm = { {32{instr[31]}}, instr[31:12], 12'd0};		
 wire [63:0] inst_r_imm = 64'd0;	
 
 wire inst_i_type = inst_load | inst_jalr | inst_alu_imm | inst_alu_immw;

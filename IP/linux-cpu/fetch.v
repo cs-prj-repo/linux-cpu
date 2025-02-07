@@ -2,13 +2,14 @@ module fetch(
 	input wire  [63:0]  pc,
 	output wire [31:0]  fetch_o_instr,
 	output wire [63:0]  fetch_o_pc,
+	output wire [63:0]  fetch_o_pc_plus_4,
 	output wire [63:0]	fetch_o_pre_pc,
 
 	//下面四个全部是用作commit的，
+	output wire         fetch_o_commit_info,
 	output wire 		fetch_o_commit,
 	output wire [63:0]  fetch_o_commit_pc,
 	output wire [31:0]  fetch_o_commit_instr,
-	output wire [63:0]	fetch_o_commit_pre_pc
 );
 
 //fetch进行取指，并进行分支预测
@@ -18,6 +19,8 @@ assign fetch_o_instr  = dpi_mem_read(pc, 4);
 
 assign fetch_o_pre_pc = pc + 64'd4; //分支预测
 assign fetch_o_pc 	  = pc;
+assign fetch_o_pc_plus_4 = pc + 64'd4;
+
 
 assign fetch_o_commit = 1;
 assign fetch_o_commit_pc 		= pc;

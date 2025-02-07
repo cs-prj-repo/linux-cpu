@@ -9,7 +9,7 @@ module execute(
 	   input  [31:0]  regfile_rs2_rdata_i,
 	   input  [31:0]  imm_i,
 
-           output [31:0]  execute_alu_result_o,
+       output [31:0]  execute_alu_result_o,
 	   output [31:0]  execute_mem_addr_o,
 	   output         execute_branch_jump_o
 );

@@ -78,13 +78,13 @@ word_t commit_pre_pc = 0;
 //si 1执行一条指令就确定是一次commit, 而不是多次clk
 void execute(uint64_t n){
   for (   ;n > 0; n --) {
+    
     while(dut.commit != 1){      
       npc_single_cycle();
     }
     word_t commit_pc     = dut.commit_pc;
     word_t commit_pre_pc = dut.commit_pre_pc;
     word_t commit_instr  = dut.commit_instr;
-
     if(dut.commit_instr == 0x00100073){
       instr_trace(commit_pc, commit_instr);
       printf("由于仿真框架将[ebreak]指令看作是程序结束的指令，执行[ebreak]指令之后，我们退出程序\n");

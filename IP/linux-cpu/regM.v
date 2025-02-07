@@ -5,21 +5,21 @@ module regM(
     input wire        regM_stall,
     
 
+    input wire  [63:0] regE_i_pc,
+
     input wire  [10:0] regE_i_load_store_info,
     input wire  [11:0] regE_i_opcode_info,
     input wire  [63:0] regE_i_regdata2,
     input wire  [63:0] execute_i_alu_result,
 
-
-
     input wire  [4:0]  regE_i_rd,
     input wire         regE_i_reg_wen,
 
 
-    input wire        regE_i_commit,          // 来自regE的提交标志
-    input wire [63:0] execute_i_commit_pre_pc,
-    input wire [31:0] regE_i_commit_instr,    // 来自regE的提交时的指令
-    input wire [63:0] regE_i_commit_pc,       // 来自regE的提交PC
+    input wire          regE_i_commit,          // 来自regE的提交标志
+    input wire [63:0]   execute_i_commit_pre_pc,
+    input wire [31:0]   regE_i_commit_instr,    // 来自regE的提交时的指令
+    input wire [63:0]   regE_i_commit_pc,       // 来自regE的提交PC
 
     output reg   [10:0] regM_o_load_store_info,
     output reg   [11:0] regM_o_opcode_info,
@@ -27,13 +27,14 @@ module regM(
     output reg   [63:0] regM_o_regdata2,
     output reg   [63:0] regM_o_alu_result,
 
-    output reg        regM_o_commit,          // 输出提交标志
-    output reg [63:0] regM_o_commit_pre_pc,   // 输出提交前的PC
-    output reg [31:0] regM_o_commit_instr,    // 输出提交时的指令
-    output reg [63:0] regM_o_commit_pc,       // 输出提交PC
+    output reg          regM_o_commit,          // 输出提交标志
+    output reg [63:0]   regM_o_commit_pre_pc,   // 输出提交前的PC
+    output reg [31:0]   regM_o_commit_instr,    // 输出提交时的指令
+    output reg [63:0]   regM_o_commit_pc,       // 输出提交PC
 
-    output reg  [4:0] regM_o_rd,
-    output reg        regM_o_reg_wen
+    output reg  [63:0]  regM_o_pc,
+    output reg  [4:0]   regM_o_rd,
+    output reg          regM_o_reg_wen
 );
 
     always @(posedge clk) begin

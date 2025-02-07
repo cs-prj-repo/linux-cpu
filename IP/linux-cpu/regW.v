@@ -6,6 +6,8 @@ module regW(
     
 
     input wire  [4:0]  regM_i_rd,
+    input wire         regM_i_pc,
+
     input wire         regM_i_reg_wen,
     input wire [63:0]  memory_i_memdata,
     input wire [11:0]  regM_i_opcode_info,
@@ -19,14 +21,15 @@ module regW(
 
     output reg  [4:0]       regW_o_rd,
     output reg              regW_o_reg_wen,
-    output reg   [63:0]     regW_o_memdata,
-    output reg   [11:0]     regW_o_opcode_info,
-    output reg   [63:0]     regW_o_alu_result,
+    output reg  [63:0]      regW_o_memdata,
+    output reg  [11:0]      regW_o_opcode_info,
+    output reg  [63:0]      regW_o_alu_result,
+    output reg  [63:0]      regW_o_pc,
 
-    output reg        regW_o_commit,          // 输出提交标志
-    output reg [63:0] regW_o_commit_pre_pc,   // 输出提交前的PC
-    output reg [31:0] regW_o_commit_instr,    // 输出提交时的指令
-    output reg [63:0] regW_o_commit_pc        // 输出提交PC
+    output reg              regW_o_commit,          // 输出提交标志
+    output reg [63:0]       regW_o_commit_pre_pc,   // 输出提交前的PC
+    output reg [31:0]       regW_o_commit_instr,    // 输出提交时的指令
+    output reg [63:0]       regW_o_commit_pc        // 输出提交PC
 );
 
     always @(posedge clk) begin
