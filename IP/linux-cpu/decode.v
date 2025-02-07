@@ -19,11 +19,8 @@ module decode(
 	input wire [4:0]  	write_back_i_rd,
 	input wire 		  	write_back_i_reg_wen,
 
-	output wire [13:0]  decode_o_alu_info,
-	output wire [4:0 ]  decode_o_mul_info,
-	output wire [3:0]   decode_o_div_info,
-	output wire [3:0]   decode_o_rem_info,
-
+	
+	output wire [27:0]  decode_o_alu_info,
 	output wire [11:0]	decode_o_opcode_info,
 	output wire [5:0]	decode_o_branch_info,
 	output wire [10:0]  decode_o_load_store_info,
@@ -160,8 +157,6 @@ wire inst_bgeu				= (inst_branch & func3_111);
 
 
 //------------------------------------译码结束-------------------------------------------
-
-
 assign decode_o_opcode_info = {
 	inst_lui,
 	inst_auipc,
@@ -198,9 +193,6 @@ assign decode_o_load_store_info = {
 	inst_sw,
 	inst_sd								
 };
-
-
-
 assign decode_o_alu_info = {
 			     (inst_add  	| inst_addi ),  // 9
 			     (inst_sub      | inst_subw ),  // 8
@@ -215,35 +207,21 @@ assign decode_o_alu_info = {
 				 (inst_addw 	| inst_addiw),
 				 (inst_sllw 	| inst_slliw),
 				 (inst_srlw 	| inst_srliw),
-				 (inst_sraw 	| inst_sraiw) 
-};
-
-assign decode_o_mul_info = {
+				 (inst_sraw 	| inst_sraiw), 
 				 (inst_mul  			    ),
 				 (inst_mulh 				),
 				 (inst_mulhsu				),
 				 (inst_mulhu				),
-				 (inst_mulw					)
-};
-assign decode_o_div_info = {
+				 (inst_mulw					),
 				 (inst_div					),
 				 (inst_divu					),
 				 (inst_divw					),
-				 (inst_divuw				)
-};
-assign decode_o_rem_info = {
+				 (inst_divuw				),
 				 (inst_rem					),
 				 (inst_remu					),
 				 (inst_remw					),
 				 (inst_remuw				)
 };
-
-//need_rs1, need_rs2, need_rd在
-// wire decode_o_need_rs1 = (~inst_lui) & (~inst_auipc)  & (~inst_jal);
-// wire decode_o_need_rs2 = (inst_alu_reg | inst_alu_regw | inst_branch | inst_store);
-// wire decode_o_need_rd =  (~inst_branch) & (~inst_store);
-
-
 wire [63:0] inst_i_imm = { {52{instr[31]}}, instr[31:20] };		
 wire [63:0] inst_s_imm = { {52{instr[31]}}, instr[31:25], instr[11:7] };	
 wire [63:0] inst_b_imm = { {51{instr[31]}}, instr[31],    instr[7],      instr[30:25], instr[11:8 ], 1'b0};

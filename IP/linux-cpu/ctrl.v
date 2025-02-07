@@ -1,6 +1,6 @@
 
 module ctrl(
-    input  wire          execute_i_is_jump,
+    input  wire          execute_i_need_jump,
 
     output wire          regD_stall,
     output wire          regE_stall,

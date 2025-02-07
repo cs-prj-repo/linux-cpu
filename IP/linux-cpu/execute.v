@@ -4,9 +4,6 @@ module execute(
     input wire  [5:0]   regE_i_branch_info,
     input wire  [10:0]  regE_i_load_store_info,
     input wire  [13:0]  regE_i_alu_info,
-    input wire  [4:0]   regE_i_mul_info,
-    input wire  [3:0]   regE_i_div_info,
-    input wire  [3:0]   regE_i_rem_info,
 
     //data
     input wire  [63:0]  regE_i_regdata1,
@@ -14,13 +11,10 @@ module execute(
     input wire  [63:0]  regE_i_imm,
     input wire  [63:0]  regE_i_pc,
 
-    //commit_info
-    input wire  [63:0]  regE_i_commit_pre_pc, 
 
     output wire [63:0]  execute_o_alu_result,
-
-    //commit_info
-    output wire [63:0]  execute_o_commit_pre_pc
+    output wire         execute_o_need_jump,
+    output wire [63:0]  execute_o_jump_pc
 );
 
 
