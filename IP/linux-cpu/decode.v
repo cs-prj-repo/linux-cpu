@@ -4,6 +4,16 @@ module decode(
     input wire rst,                    // 复位信号
     input wire [31:0] regD_i_instr,    // 输入指令
 
+	//execute阶段数据前递
+	input wire [63:0]	execute_i_alu_result,
+	input wire [4:0] 	regE_i_rd,
+	input wire 			regE_i_reg_wen,
+
+	input wire [63:0] 	regM_i_alu_result,
+	input wire  [4:0]	regM_i_rd,
+	input wire 			regM_i_reg_wen,
+
+
 	//要写回的数据信息
 	input wire [63:0] 	write_back_i_data,
 	input wire [4:0]  	write_back_i_rd,
@@ -148,8 +158,6 @@ wire inst_bgeu				= (inst_branch & func3_111);
 
 
 //------------------------------------译码结束-------------------------------------------
-wire [63:0] regfile_o_valA;
-wire [63:0] regfile_o_valB;
 
 
 assign decode_o_opcode_info = {
@@ -200,7 +208,7 @@ assign decode_o_alu_info = {
 			     (inst_srl  	| inst_srli ),  // 3
 			     (inst_sra  	| inst_srai ),  // 2
 			     (inst_or   	| inst_ori  ),  // 1
-			     (inst_and  	| inst_andi ),   // 0   
+			     (inst_and  	| inst_andi ),  // 0   
 				 (inst_addw 	| inst_addiw),
 				 (inst_subw 	 			),
 				 (inst_sllw 	| inst_slliw),
@@ -220,7 +228,6 @@ assign decode_o_alu_info = {
 				 (inst_remw					),
 				 (inst_remuw				)				
 };
-
 //need_rs1, need_rs2, need_rd在
 // wire decode_o_need_rs1 = (~inst_lui) & (~inst_auipc)  & (~inst_jal);
 // wire decode_o_need_rs2 = (inst_alu_reg | inst_alu_regw | inst_branch | inst_store);
@@ -231,7 +238,7 @@ wire [63:0] inst_i_imm = { {52{instr[31]}}, instr[31:20] };
 wire [63:0] inst_s_imm = { {52{instr[31]}}, instr[31:25], instr[11:7] };	
 wire [63:0] inst_b_imm = { {51{instr[31]}}, instr[31],    instr[7],      instr[30:25], instr[11:8 ], 1'b0};
 wire [63:0] inst_j_imm = { {43{instr[31]}}, instr[31],    instr[19:12],  instr[20],    instr[30:21], 1'b0};	
-wire [63:0] inst_u_imm = { 32'd0, instr[31:12], 12'd0};		
+wire [63:0] inst_u_imm = { 32{instr}, instr[31:12], 12'd0};		
 wire [63:0] inst_r_imm = 64'd0;	
 
 wire inst_i_type = inst_load | inst_jalr | inst_alu_imm | inst_alu_immw;
@@ -249,25 +256,30 @@ assign decode_o_imm = 	inst_i_type ? inst_i_imm :
 						inst_r_type ? inst_r_imm : 64'd0;
 
 assign decode_o_rd =  rd;
-assign decode_o_reg_wen = inst_i_type | inst_u_type;
+assign decode_o_reg_wen = inst_i_type | inst_u_type | inst_r_type | inst_j_type;
 
-
+wire [63:0] regfile_o_regdata1;
+wire [63:0] regfile_o_regdata2;
 regfile u_regfile(
-	.clk                     	(clk                      ),
-	.rst                     	(rst                      ),
-	.write_back_i_rd      		(write_back_i_rd       ),
-	.write_back_i_data    		(write_back_i_data     ),
-	.write_back_i_reg_wen 		(write_back_i_reg_wen  ),
-	.decode_i_rs1            	(rs1             		),
-	.decode_i_rs2            	(rs2             		),
-	.regfile_o_regdata1      	(decode_o_regdata1       ),
-	.regfile_o_regdata2      	(decode_o_regdata2       )
+	.clk                     	(clk                      	),
+	.rst                     	(rst                      	),
+	.write_back_i_rd      		(write_back_i_rd      		),
+	.write_back_i_data    		(write_back_i_data     		),
+	.write_back_i_reg_wen 		(write_back_i_reg_wen  		),
+	.decode_i_rs1            	(rs1             			),
+	.decode_i_rs2            	(rs2             			),
+	.regfile_o_regdata1      	(regfile_o_regdata1     	),
+	.regfile_o_regdata2      	(regfile_o_regdata2       	)
 );
+//execute阶段数据前递
 
+
+
+
+assign decode_o_regdata1 = regE_i_rd != 5'd0 && regE_i_reg_wen && regE_i_rd == rs1 ? execute_i_alu_result 	: 
+						   regM_i_rd != 5'd0 && regM_i_reg_wen && regM_i_rd == rs1 ? regM_i_alu_result 		: regfile_o_regdata1;
+
+assign decode_o_regdata2 = regE_i_rd != 5'd0 && regE_i_reg_wen && regE_i_rd == rs2 ? execute_i_alu_result 	:
+						   regM_i_rd != 5'd0 && regM_i_reg_wen && regM_i_rd == rs2 ? regM_i_alu_result 		: regfile_o_regdata2;
 
 endmodule
-
-
-
-
-

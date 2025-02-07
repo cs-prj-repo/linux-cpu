@@ -8,29 +8,33 @@ module top_cpu(
     output wire [63:0]          commit_pre_pc,
     output wire [63:0]          cur_pc
 );
-assign cur_pc = select_pc_o_pc;
-// output declaration of module regF
-reg [63:0] regF_o_pre_pc;
+wire [63:0] pc;
 
-regF u_regF(
-    .clk            	(clk             ),
-    .rst            	(rst             ),
-    .fetch_i_pre_pc 	(fetch_o_pre_pc  ),
-    .regF_o_pre_pc  	(regF_o_pre_pc   )
+assign cur_pc = pc;
+pc u_pc(
+    .clk               	(clk                ),
+    .rst               	(rst                ),
+    .execute_i_pre_pc  	(execute_o_commit_pre_pc   ),
+    .execute_i_is_jump 	(execute_o_is_jump  ),
+    .fetch_i_pre_pc     (fetch_o_pre_pc),
+    .pc                	(pc                 )
 );
+
 
 // output declaration of module fetch
 wire [31:0] fetch_o_instr;
 wire [63:0] fetch_o_pre_pc;
+wire [63:0] fetch_o_pc;
 wire fetch_o_commit;
 wire [63:0] fetch_o_commit_pc;
 wire [31:0] fetch_o_commit_instr;
 wire [63:0] fetch_o_commit_pre_pc;
 
 fetch u_fetch(
-    .select_pc_i_pc        	(select_pc_o_pc         ),
+    .pc        	(pc         ),
     .fetch_o_instr         	(fetch_o_instr          ),
     .fetch_o_pre_pc        	(fetch_o_pre_pc         ),
+    .fetch_o_pc             (fetch_o_pc),
     .fetch_o_commit        	(fetch_o_commit         ),
     .fetch_o_commit_pc     	(fetch_o_commit_pc      ),
     .fetch_o_commit_instr  	(fetch_o_commit_instr   ),
@@ -38,14 +42,6 @@ fetch u_fetch(
 );
 
 // output declaration of module select
-wire [63:0] select_pc_o_pc;
-
-select_pc u_select_pc(
-    .clk(clk),
-    .rst(rst),
-    .regF_i_pre_pc  	(regF_o_pre_pc   ),
-    .select_pc_o_pc 	(select_pc_o_pc  )
-);
 
 
 // output declaration of module regD
@@ -59,7 +55,9 @@ reg [63:0] regD_o_commit_pre_pc;
 regD u_regD(
     .clk                   	(clk                    ),
     .rst                   	(rst                    ),
-    .select_pc_i_pc        	(select_pc_o_pc         ),
+    .regD_bubble(ctrl_o_regD_bubble),
+    .regD_stall(ctrl_o_regD_stall),
+    .fetch_i_pc             (fetch_o_pc),
     .fetch_i_instr         	(fetch_o_instr          ),
     .fetch_i_commit        	(fetch_o_commit         ),
     .fetch_i_commit_pc     	(fetch_o_commit_pc      ),
@@ -76,14 +74,14 @@ regD u_regD(
 // output declaration of module decode
 wire [27:0] decode_o_alu_info;
 wire [11:0] decode_o_opcode_info;
-wire [5:0] decode_o_branch_info;
+wire [5: 0] decode_o_branch_info;
 wire [10:0] decode_o_load_store_info;
 wire [63:0] decode_o_regdata1;
 wire [63:0] decode_o_regdata2;
 wire [63:0] decode_o_imm;
-wire [4:0] decode_o_rs1;
-wire [4:0] decode_o_rs2;
-wire [4:0] decode_o_rd;
+wire [4 :0] decode_o_rs1;
+wire [4 :0] decode_o_rs2;
+wire [4 :0] decode_o_rd;
 wire decode_o_reg_wen;
 
 
@@ -91,6 +89,13 @@ wire decode_o_reg_wen;
 decode u_decode(
     .clk                      	(clk                       ),
     .rst                      	(rst                       ),
+    	//execute阶段数据前递
+	.execute_i_alu_result(execute_o_alu_result),
+	.regE_i_rd(regE_o_rd),
+	.regE_i_reg_wen(regE_o_reg_wen),
+    .regM_i_alu_result(regM_o_alu_result),
+    .regM_i_rd(regM_o_rd),
+    .regM_i_reg_wen(regM_o_reg_wen),
     .regD_i_instr             	(regD_o_instr              ),
     .write_back_i_data        	(write_back_o_data         ),
     .write_back_i_rd          	(write_back_o_rd           ),
@@ -109,30 +114,33 @@ decode u_decode(
 
 // output declaration of module regE
 reg regE_o_commit;
-reg [63:0] regE_o_commit_pre_pc;
-reg [31:0] regE_o_commit_instr;
-reg [63:0] regE_o_commit_pc;
-reg [63:0] regE_o_regdata1;
-reg [63:0] regE_o_regdata2;
-reg [63:0] regE_o_imm;
-reg [63:0] regE_o_pc;
-reg [4:0] regE_o_rs1;
-reg [4:0] regE_o_rs2;
-reg [4:0] regE_o_rd;
-reg regE_o_reg_wen;
-reg [27:0] regE_o_alu_info;
-reg [10:0] regE_o_load_store_info;
-reg [11:0] regE_o_opcode_info;
-reg [5:0] regE_o_branch_info;
+reg [63:0]  regE_o_commit_pre_pc;
+reg [31:0]  regE_o_commit_instr;
+reg [63:0]  regE_o_commit_pc;
+reg [63:0]  regE_o_regdata1;
+reg [63:0]  regE_o_regdata2;
+reg [63:0]  regE_o_imm;
+reg [63:0]  regE_o_pc;
+reg [4:0]   regE_o_rs1;
+reg [4:0]   regE_o_rs2;
+reg [4:0]   regE_o_rd;
+reg         regE_o_reg_wen;
+reg [27:0]  regE_o_alu_info;
+reg [10:0]  regE_o_load_store_info;
+reg [11:0]  regE_o_opcode_info;
+reg [5:0]   regE_o_branch_info;
 
 regE u_regE(
     .clk                      	(clk                       ),
     .rst                      	(rst                       ),
+    .regE_bubble(ctrl_o_regE_bubble),
+    .regE_stall(ctrl_o_regE_stall),
     .regD_i_commit            	(regD_o_commit             ),
     .regD_i_commit_pre_pc     	(regD_o_commit_pre_pc      ),
     .regD_i_commit_instr      	(regD_o_commit_instr       ),
     .regD_i_commit_pc         	(regD_o_commit_pc          ),
     .regD_i_pc                	(regD_o_pc                 ),
+    
     .decode_i_imm             	(decode_o_imm              ),
     .decode_i_regdata1        	(decode_o_regdata1         ),
     .decode_i_regdata2        	(decode_o_regdata2         ),
@@ -160,6 +168,8 @@ regE u_regE(
 
 // output declaration of module execute
 wire [63:0] execute_o_alu_result;
+wire [63:0] execute_o_commit_pre_pc;
+wire        execute_o_is_jump;
 
 execute u_execute(
     .regE_i_alu_info        	(regE_o_alu_info         ),
@@ -170,6 +180,9 @@ execute u_execute(
     .regE_i_regdata2        	(regE_o_regdata2         ),
     .regE_i_imm             	(regE_o_imm              ),
     .regE_i_pc              	(regE_o_pc               ),
+    .regE_i_commit_pre_pc       (regE_o_commit_pre_pc    ),
+    .execute_o_is_jump          (execute_o_is_jump       ),
+    .execute_o_commit_pre_pc    (execute_o_commit_pre_pc ),
     .execute_o_alu_result      	(execute_o_alu_result       )
 );
 
@@ -189,6 +202,9 @@ reg regM_o_reg_wen;
 regM u_regM(
     .clk                    	(clk                     ),
     .rst                    	(rst                     ),
+    .regM_bubble(ctrl_o_regM_bubble),
+    .regM_stall(ctrl_o_regM_stall),
+
     .regE_i_load_store_info 	(regE_o_load_store_info  ),
     .regE_i_opcode_info     	(regE_o_opcode_info      ),
     .regE_i_regdata2        	(regE_o_regdata2         ),
@@ -196,7 +212,7 @@ regM u_regM(
     .regE_i_rd              	(regE_o_rd               ),
     .regE_i_reg_wen         	(regE_o_reg_wen          ),
     .regE_i_commit          	(regE_o_commit           ),
-    .regE_i_commit_pre_pc   	(regE_o_commit_pre_pc    ),
+    .execute_i_commit_pre_pc    (execute_o_commit_pre_pc),
     .regE_i_commit_instr    	(regE_o_commit_instr     ),
     .regE_i_commit_pc       	(regE_o_commit_pc        ),
     .regM_o_load_store_info 	(regM_o_load_store_info  ),
@@ -240,6 +256,9 @@ reg [63:0] regW_o_commit_pc;
 regW u_regW(
     .clk                  	(clk                   ),
     .rst                  	(rst                   ),
+    .regW_bubble(ctrl_o_regW_bubble),
+    .regW_stall(ctrl_o_regW_stall),
+
     .regM_i_rd            	(regM_o_rd             ),
     .regM_i_reg_wen       	(regM_o_reg_wen        ),
     .memory_i_memdata     	(memory_o_memdata      ),
@@ -276,8 +295,33 @@ write_back u_write_back(
     .regW_i_memdata       	(regW_o_memdata        ),
     .regW_i_rd            	(regW_o_rd             ),
     .regW_i_reg_wen       	(regW_o_reg_wen        ),
+    .regW_i_commit_pc       (regW_o_commit_pc      ),
     .write_back_o_rd      	(write_back_o_rd       ),
     .write_back_o_data    	(write_back_o_data     ),
     .write_back_o_reg_wen 	(write_back_o_reg_wen  )
 );
+
+
+// output declaration of module ctrl
+wire ctrl_o_regD_stall;
+wire ctrl_o_regE_stall;
+wire ctrl_o_regM_stall;
+wire ctrl_o_regW_stall;
+wire ctrl_o_regD_bubble;
+wire ctrl_o_regE_bubble;
+wire ctrl_o_regM_bubble;
+wire ctrl_o_regW_bubble;
+
+ctrl u_ctrl(
+    .execute_i_is_jump  	(execute_o_is_jump   ),
+    .ctrl_o_regD_stall  	(ctrl_o_regD_stall   ),
+    .ctrl_o_regE_stall  	(ctrl_o_regE_stall   ),
+    .ctrl_o_regM_stall  	(ctrl_o_regM_stall   ),
+    .ctrl_o_regW_stall  	(ctrl_o_regW_stall   ),
+    .ctrl_o_regD_bubble 	(ctrl_o_regD_bubble  ),
+    .ctrl_o_regE_bubble 	(ctrl_o_regE_bubble  ),
+    .ctrl_o_regM_bubble 	(ctrl_o_regM_bubble  ),
+    .ctrl_o_regW_bubble 	(ctrl_o_regW_bubble  )
+);
+
 endmodule

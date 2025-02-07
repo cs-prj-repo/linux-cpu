@@ -1,7 +1,11 @@
 module regE(
     input wire         clk,                    // 时钟信号
     input wire         rst,                    // 复位信号
+    input wire        regE_bubble,
+    input wire        regE_stall,
+
     
+
     // 来自 regD 的提交信号
     input wire         regD_i_commit,          // 提交标志
     input wire [63:0]  regD_i_commit_pre_pc,   // 提交前的PC
@@ -46,7 +50,7 @@ module regE(
 
 // 时序逻辑：控制寄存器的更新，使用时钟信号 clk
 always @(posedge clk or posedge rst) begin
-    if (rst) begin
+    if (rst || regE_bubble) begin
         // 复位所有输出信号
         regE_o_commit           <= 1'd0;       // 提交标志
         regE_o_commit_pre_pc    <= 64'd0;      // 提交前的PC
@@ -85,5 +89,4 @@ always @(posedge clk or posedge rst) begin
         regE_o_branch_info      <= decode_i_branch_info;     // 分支信息
     end
 end
-
 endmodule

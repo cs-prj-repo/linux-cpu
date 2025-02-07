@@ -46,7 +46,7 @@ CXXFLAGS += -fpermissive
 $(BIN): $(VSRCS) $(CSRCS)
 	$(shell mkdir -p $(BUILD_DIR))
 	@-rm -rf $(OBJ_DIR)
-	@rm -f waveform.vcd
+	@rm -f waveform.fst
 	$(VERILATOR) $(VERILATOR_CFLAGS) $^    \
 		$(addprefix -CFLAGS ,  $(CXXFLAGS)) \
 		$(addprefix -LDFLAGS , $(LDFLAGS)) \
@@ -65,7 +65,7 @@ sim:
 
 clean:
 	rm -rf $(BUILD_DIR)
-	rm -f waveform.vcd
+	rm -f waveform.fst
 
 
 .PHONY: default all clean run sim

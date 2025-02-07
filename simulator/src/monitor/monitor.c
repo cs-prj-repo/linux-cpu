@@ -68,9 +68,12 @@ static int parse_args(int argc, char *argv[]) {
 }
 
 static const uint32_t img [] = {  
-  0x0008e1b7,
-  0x0007b197,
+  
   0x003100b3,
+  0x40628233,
+  0x009413b3,
+  0x00c5a533,
+  
   0x00100073,  // ebreak (used as nemu_trap)
 //0xdeadbeef,  // some data
 };

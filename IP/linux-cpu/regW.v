@@ -1,7 +1,10 @@
 module regW(
     input wire        clk,                    // 时钟信号
     input wire        rst,                    // 复位信号
+    input wire        regW_bubble,
+    input wire        regW_stall,
     
+
     input wire  [4:0]  regM_i_rd,
     input wire         regM_i_reg_wen,
     input wire [63:0]  memory_i_memdata,
@@ -27,7 +30,7 @@ module regW(
 );
 
     always @(posedge clk) begin
-        if(rst) begin
+        if(rst || regW_bubble) begin
             regW_o_commit <= 1'd0;               // 清零输出提交标志
             regW_o_commit_pre_pc <= 64'd0;       // 清零输出提交前的PC
             regW_o_commit_instr <= 32'd0;        // 清零输出提交时的指令
