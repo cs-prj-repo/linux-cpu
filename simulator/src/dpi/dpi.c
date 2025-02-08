@@ -13,12 +13,12 @@ extern "C" void dpi_ebreak(){
 extern "C" uint64_t dpi_mem_read(uint64_t addr, uint64_t len){
 	if(addr == 0) return 0;
 	else{
-		unsigned int data = pmem_read(addr, len);
-		return data;
+		return pmem_read(addr, len);
 	}
 }
 
-extern "C" void dpi_mem_write(int addr, int data, int len){
+extern "C" void dpi_mem_write(uint64_t addr, uint64_t data, int len){
+//	printf("store指令, 写入地址addr=[%lx], 写入数据wdata=[%lx], 写入长度len=[%d]\n", addr, data, len);
 	if(addr == CONFIG_SERIAL_MMIO){
 		char ch = data;
 		printf("%c", ch);

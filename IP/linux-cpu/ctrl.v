@@ -13,7 +13,7 @@ module ctrl(
     output wire          regW_bubble
 );
 
-wire branch_bubble = execute_i_is_jump;
+wire branch_bubble = execute_i_need_jump;
 assign regD_bubble   = branch_bubble;
 assign regE_bubble   = branch_bubble;
 endmodule

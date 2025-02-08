@@ -10,8 +10,8 @@ module fetch(
 );
 
 //fetch进行取指，并进行分支预测
-import "DPI-C" function int dpi_mem_read(input longint pc_value, input int len);
-assign fetch_o_instr  = dpi_mem_read(pc, 4);
+import "DPI-C" function longint dpi_mem_read(input longint pc_value, input int len);
+assign fetch_o_instr  = {{dpi_mem_read(pc, 4)}[31:0]};
 assign fetch_o_pre_pc = pc + 64'd4; //分支预测
 assign fetch_o_pc 	  = pc;
 

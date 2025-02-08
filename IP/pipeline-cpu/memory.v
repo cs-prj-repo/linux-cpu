@@ -45,7 +45,7 @@ end
 wire rv32_sb  = (regM_i_mem_rw == `mem_rw_sb);
 wire rv32_sh  = (regM_i_mem_rw == `mem_rw_sh);
 wire rv32_sw  = (regM_i_mem_rw == `mem_rw_sw);
-wire [31	:0] data = regM_i_valB;
+wire [31 :0] data = regM_i_valB;
 wire [31: 0] addr = regM_i_valE;
 
 always @(posedge clk) begin

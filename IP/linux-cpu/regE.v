@@ -15,13 +15,13 @@ module regE(
     input wire  [4:0]  decode_i_rd,            // 目标寄存器地址
     input wire         decode_i_reg_wen,       // 寄存器写使能
 
-    input wire   [13:0] decode_i_alu_info,          // ALU操作信息
+    input wire   [27:0] decode_i_alu_info,          // ALU操作信息
     input wire   [10:0] decode_i_load_store_info,   // 访存操作信息
     input wire   [11:0] decode_i_opcode_info,       // 操作码信息
     input wire   [5:0]  decode_i_branch_info,       // 分支信息
 
 
-    input wire  [160:0] regD_i_commit_info
+    input wire  [160:0] regD_i_commit_info,
 
 
     output reg [63:0]  regE_o_regdata1,        // 寄存器数据1
@@ -32,7 +32,7 @@ module regE(
     output reg [4:0]   regE_o_rd,              // 目标寄存器地址
     output reg         regE_o_reg_wen,         // 寄存器写使能
 
-    output reg  [13:0] regE_o_alu_info,        // ALU操作信息
+    output reg  [27:0] regE_o_alu_info,        // ALU操作信息
     output reg  [10:0] regE_o_load_store_info, // 访存操作信息
     output reg  [11:0] regE_o_opcode_info,     // 操作码信息
     output reg  [5:0]  regE_o_branch_info,     // 分支信息
@@ -51,11 +51,11 @@ always @(posedge clk or posedge rst) begin
         regE_o_rd               <= 5'd0;
         regE_o_reg_wen          <= 1'd0;
 
-        regE_o_alu_info         <= 14'd0;
+        regE_o_alu_info         <= 28'd0;
         regE_o_load_store_info  <= 11'd0;
         regE_o_opcode_info      <= 12'd0;
         regE_o_branch_info      <= 6'd0;
-
+        regE_o_commit_info      <= 161'd0;
     end
     else if (!regE_stall) begin
         regE_o_regdata1         <= decode_i_regdata1;
@@ -70,7 +70,7 @@ always @(posedge clk or posedge rst) begin
         regE_o_load_store_info  <= decode_i_load_store_info;
         regE_o_opcode_info      <= decode_i_opcode_info;
         regE_o_branch_info      <= decode_i_branch_info;
-
+        regE_o_commit_info      <= regD_i_commit_info;
     end
 end
 

@@ -137,9 +137,9 @@ assign alu_op_result = ({32{result_sel_add_sub}} & alu_add_sub_result) |
                        ({32{result_sel_sll}}     & alu_sll_result)     |
                        ({32{result_sel_slt}}     & alu_slt_result)     |
                        ({32{result_sel_sltu}}    & alu_sltu_result)    |
-					({32{result_sel_xor}}     & alu_xor_result)     |
-					({32{result_sel_srl}}     & alu_srl_result)     |
-					({32{result_sel_sra}}     & alu_sra_result)     |
+					   ({32{result_sel_xor}}     & alu_xor_result)     |
+					   ({32{result_sel_srl}}     & alu_srl_result)     |
+					   ({32{result_sel_sra}}     & alu_sra_result)     |
 						({32{result_sel_or}}      & alu_or_result)      |
 						({32{result_sel_and}}     & alu_and_result) ;				   
 					   

@@ -6,14 +6,51 @@ module memory(
     input wire  [63:0]   regM_i_regdata2,
     output wire [63:0]   memory_o_memdata
 );
+import "DPI-C" function void    dpi_mem_write(input longint addr, input longint data, int len);
+import "DPI-C" function longint dpi_mem_read (input longint addr, input int len);
 
-assign memory_o_memdata = 64'd0;
-// 对于riscv指令来说
-// 有无条件跳转指令
-// 有分支跳转指令               
-// 有逻辑运算指令（寄存器与寄存器）————————ALU的结果写回到寄存器里面
-// 有逻辑运算指令（寄存器与立即数）————————ALU的结果写回到寄存器里面
+wire [63:0] mem_addr  = regM_i_alu_result;
+wire [63:0] mem_wdata = regM_i_regdata2;
 
-// 加载指令（从内存中读数据）—————————————ALU的结果作为读地址
-// 访存指令（往内存中写数据）—————————————ALU的结果作为写地址, regdata2作为
+wire inst_lb    =   regM_i_load_store_info[10];
+wire inst_lh    =   regM_i_load_store_info[9];
+wire inst_lw    =   regM_i_load_store_info[8];
+wire inst_ld    =   regM_i_load_store_info[7];
+wire inst_lbu   =   regM_i_load_store_info[6];
+wire inst_lhu   =   regM_i_load_store_info[5];
+wire inst_lwu   =   regM_i_load_store_info[4];
+
+wire inst_sb    =   regM_i_load_store_info[3];
+wire inst_sh    =   regM_i_load_store_info[2];
+wire inst_sw    =   regM_i_load_store_info[1];
+wire inst_sd    =   regM_i_load_store_info[0];
+
+wire inst_load  =   inst_lb | inst_lh | inst_lw | inst_ld | inst_lbu | inst_lhu | inst_lwu;
+wire inst_store =   inst_sb | inst_sh | inst_sw | inst_sd;
+
+wire [63:0]  mem_data = dpi_mem_read(mem_addr, 8);
+
+assign memory_o_memdata  = (inst_lb)  ?     { {56{mem_data[63]}},   mem_data[7 :0]}   :
+                           (inst_lh)  ?     { {48{mem_data[63]}},   mem_data[15:0]}   :  
+                           (inst_lw)  ?     { {32{mem_data[63]}},   mem_data[31:0]}   :
+                           (inst_ld)  ?     {                       mem_data[63:0]}   :
+                           (inst_lbu) ?     { 56'd0,                mem_data[7 :0]}   :
+                           (inst_lhu) ?     { 48'd0,                mem_data[15:0]}   :
+                           (inst_lwu) ?     { 32'd0,                mem_data[31:0]}   : 64'd0;
+
+//要写入的数据
+always @(posedge clk) begin
+	if(inst_sb) begin
+		dpi_mem_write(mem_addr, mem_wdata, 1);
+	end
+	else if(inst_sh) begin
+		dpi_mem_write(mem_addr, mem_wdata, 2);		
+	end
+	else if(inst_sw) begin
+		dpi_mem_write(mem_addr, mem_wdata, 4);				
+	end
+    else if(inst_sd) begin
+        dpi_mem_write(mem_addr, mem_wdata, 8);		
+    end
+end
 endmodule

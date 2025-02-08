@@ -74,6 +74,10 @@ static void checkregs(CPU_state *ref, vaddr_t pc, paddr_t next_pc) {
     if(ref->gpr[i] != cpu.gpr[i]){  
       printf("[NPC] Difftest Error: 在执行完pc=[%lx]指令之后,DUT和REF状态出现不一致:\n", pc);
       printf("[参考处理器.%s]=0x%lx, [你的处理器.%s]=0x%lx\n", reg_name(i), ref->gpr[i], reg_name(i), gpr(i));
+      printf("\n-----------以下是所有寄存器数据：\n");
+      for(int i = 0;  i < 32; ++i){
+        printf("[参考处理器.%s]=0x%lx, [你的处理器.%s]=0x%lx\n", reg_name(i), ref->gpr[i], reg_name(i), gpr(i));
+      }
       npc_close_simulation();
       printf("下面将会产生一个makefile错误,暂时不用担心\n");
       exit(1);

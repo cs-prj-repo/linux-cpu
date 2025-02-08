@@ -13,6 +13,10 @@ module decode(
 	input wire  [4:0]	regM_i_rd,
 	input wire 			regM_i_reg_wen,
 
+	input wire [63:0]   regW_i_alu_result,
+	input wire  [4:0]	regW_i_rd,
+	input wire  		regW_i_reg_wen,
+
 
 	//要写回的数据信息
 	input wire [63:0] 	write_back_i_data,
@@ -195,7 +199,7 @@ assign decode_o_load_store_info = {
 };
 assign decode_o_alu_info = {
 			     (inst_add  	| inst_addi ),  // 9
-			     (inst_sub      | inst_subw ),  // 8
+			     (inst_sub                  ),  // 8
 			  	 (inst_sll  	| inst_slli ),
 			     (inst_slt  	| inst_slti ),
 			     (inst_sltu 	| inst_sltiu),  
@@ -205,6 +209,7 @@ assign decode_o_alu_info = {
 			     (inst_or   	| inst_ori  ),  
 			     (inst_and  	| inst_andi ),
 				 (inst_addw 	| inst_addiw),
+				 (inst_subw					),
 				 (inst_sllw 	| inst_slliw),
 				 (inst_srlw 	| inst_srliw),
 				 (inst_sraw 	| inst_sraiw), 
@@ -220,17 +225,17 @@ assign decode_o_alu_info = {
 				 (inst_rem					),
 				 (inst_remu					),
 				 (inst_remw					),
-				 (inst_remuw				)
+				 (inst_remuw				) 
 };
 wire [63:0] inst_i_imm = { {52{instr[31]}}, instr[31:20] };		
 wire [63:0] inst_s_imm = { {52{instr[31]}}, instr[31:25], instr[11:7] };	
 wire [63:0] inst_b_imm = { {51{instr[31]}}, instr[31],    instr[7],      instr[30:25], instr[11:8 ], 1'b0};
 wire [63:0] inst_j_imm = { {43{instr[31]}}, instr[31],    instr[19:12],  instr[20],    instr[30:21], 1'b0};	
 wire [63:0] inst_u_imm = { {32{instr[31]}}, instr[31:12], 12'd0};		
-wire [63:0] inst_r_imm = 64'd0;	
+wire [63:0] inst_r_imm =   64'd0;	
 
 wire inst_i_type = inst_load | inst_jalr | inst_alu_imm | inst_alu_immw;
-wire inst_u_type = inst_lui | inst_auipc;
+wire inst_u_type = inst_lui  | inst_auipc;
 wire inst_j_type = inst_jal;
 wire inst_r_type = inst_alu_reg | inst_alu_regw;
 wire inst_s_type = inst_store;
@@ -265,9 +270,11 @@ regfile u_regfile(
 
 
 assign decode_o_regdata1 = regE_i_rd != 5'd0 && regE_i_reg_wen && regE_i_rd == rs1 ? execute_i_alu_result 	: 
-						   regM_i_rd != 5'd0 && regM_i_reg_wen && regM_i_rd == rs1 ? regM_i_alu_result 		: regfile_o_regdata1;
+						   regM_i_rd != 5'd0 && regM_i_reg_wen && regM_i_rd == rs1 ? regM_i_alu_result 		: 
+						   regW_i_rd != 5'd0 && regW_i_reg_wen && regW_i_rd == rs1 ? regW_i_alu_result 		: regfile_o_regdata1;
 
 assign decode_o_regdata2 = regE_i_rd != 5'd0 && regE_i_reg_wen && regE_i_rd == rs2 ? execute_i_alu_result 	:
-						   regM_i_rd != 5'd0 && regM_i_reg_wen && regM_i_rd == rs2 ? regM_i_alu_result 		: regfile_o_regdata2;
+						   regM_i_rd != 5'd0 && regM_i_reg_wen && regM_i_rd == rs2 ? regM_i_alu_result 		: 
+						   regW_i_rd != 5'd0 && regW_i_reg_wen && regW_i_rd == rs2 ? regW_i_alu_result 		: regfile_o_regdata2;
 
 endmodule
