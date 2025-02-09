@@ -39,45 +39,43 @@ wire [51:0] pc_tag             =   pc[63:12];
 wire [7 :0] pc_index           =   pc[11: 4];
 wire [3 :0] pc_offset          =   pc[3 : 0];
 
-always @(*) begin
-    reg hit = 0;
-    reg replace_index = 0;
-	reg found_invalid = 0;  
-    // Phase 1: Check cache hit
-    for (integer i = 0; i < 2; i = i + 1) begin
-        if (cache[pc_index][i][179:128] == pc_tag && cache[pc_index][i][180] == 1'b1) begin
-            hit = 1;
-            // Select instruction based on offset
-            instr = pc_offset == 4'd0  ? cache[pc_index][i][31:0]   :  
-                    pc_offset == 4'd4  ? cache[pc_index][i][63:32]  :
-                    pc_offset == 4'd8  ? cache[pc_index][i][95:64]  :
-                    pc_offset == 4'd12 ? cache[pc_index][i][127:96] : 32'd0;
-            break;  // Exit loop after finding hit
+always @(posedge clk) begin
+    if (rst) begin
+        for (integer i = 0; i < 256; i = i + 1) begin
+            cache[i][0][180] = 1'b0;
+            cache[i][1][180] = 1'b0;
         end
-    end
-    if (!hit) begin      
-        // First try to find invalid line
-        for (integer i = 0; i < 2; i = i + 1) begin
-            if (cache[pc_index][i][180] == 1'b0) begin  // Only check valid bit
-                replace_index = i[0:0];
-                found_invalid = 1;
-                break;
-            end
+
+    end 
+    else begin
+        for (integer i = 0; i <   2; i = i + 1) begin
+            //组选择与行匹配
+            if(cache[pc_index][i][179:128] == pc_tag) begin
+                //cache hit
+                if(cache[pc_index][i][180]) begin
+                    instr <= pc_offset == 4'd0  ? cache[pc_index][i][31: 0] :             
+                             pc_offset == 4'd4  ? cache[pc_index][i][63:32] :
+                             pc_offset == 4'd8  ? cache[pc_index][i][95:64] :
+                             pc_offset == 4'd12 ? cache[pc_index][i][127:96]: 32'd0;
+                end
+                //cache miss
+                else begin
+                    cache[pc_index][i][63 :  0]  <= dpi_mem_read(pc    , 8);
+                    cache[pc_index][i][127: 64]  <= dpi_mem_read(pc + 8, 8);
+                    cache[pc_index][i][179:128]  <= pc[63:12]; 
+                    cache[pc_index][i][180]      <= 1'b1;
+                    instr <= pc_offset == 4'd0  ? cache[pc_index][i][31: 0] :             
+                             pc_offset == 4'd4  ? cache[pc_index][i][63:32] :
+                             pc_offset == 4'd8  ? cache[pc_index][i][95:64] :
+                             pc_offset == 4'd12 ? cache[pc_index][i][127:96]: 32'd0;
+                end
+            end    
         end
-        if (!found_invalid) begin 
-			replace_index = {$random % 2}[0];
-		end
-		cache[pc_index][replace_index][63:0]    = dpi_mem_read(pc    , 8);
-		cache[pc_index][replace_index][127:64]  = dpi_mem_read(pc + 8, 8);
-		cache[pc_index][replace_index][179:128] = pc_tag; 
-		cache[pc_index][replace_index][180]     = 1'b1;  					
-		instr = pc_offset == 4'd0  ? cache[pc_index][replace_index][31:0]   : 
-				pc_offset == 4'd4  ? cache[pc_index][replace_index][63:32]  : 
-				pc_offset == 4'd8  ? cache[pc_index][replace_index][95:64]  : 
-				pc_offset == 4'd12 ? cache[pc_index][replace_index][127:96] : 32'd0;
     end
 end
-		// 从内存读取新数据，并更新缓存
+
+
+
 //fetch进行取指，并进行分支预测
 assign fetch_o_instr  = instr;
 assign fetch_o_pre_pc = pc + 64'd4; //分支预测

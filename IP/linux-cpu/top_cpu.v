@@ -30,6 +30,8 @@ wire [63:0]  fetch_o_pre_pc;
 wire [160:0] fetch_o_commit_info;
 
 fetch u_fetch(
+    .clk(clk),
+    .rst(rst),
     .pc                  	(pc                   ),
     .fetch_o_instr       	(fetch_o_instr        ),
     .fetch_o_pc          	(fetch_o_pc           ),
@@ -302,4 +304,9 @@ assign commit           =  regW_o_commit_info[160];
 assign commit_instr     =  regW_o_commit_info[159:128];
 assign commit_pre_pc    =  regW_o_commit_info[127:64];
 assign commit_pc        =  regW_o_commit_info[63:0];
+
+
+
+
+
 endmodule
