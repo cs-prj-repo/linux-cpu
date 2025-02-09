@@ -110,9 +110,6 @@ void statistic() {
   }
 }
 
-
-
-
 void cpu_exec(uint64_t n) {
   g_print_step = (n < MAX_INST_TO_PRINT); 
   switch (sim_state.state) {

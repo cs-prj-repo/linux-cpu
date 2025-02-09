@@ -15,6 +15,8 @@ wire [63:0] pc;
 pc u_pc(
     .clk                 	(clk                  ),
     .rst                 	(rst                  ),
+    .regF_stall             (regF_stall),
+    .regF_bubble            (regF_bubble),
     .execute_i_jump_pc   	(execute_o_jump_pc    ),
     .execute_i_need_jump 	(execute_o_need_jump  ),
     .fetch_i_pre_pc      	(fetch_o_pre_pc       ),
@@ -64,6 +66,8 @@ wire [63:0] decode_o_regdata2;
 wire [63:0] decode_o_imm;
 wire [4:0] decode_o_rd;
 wire decode_o_reg_wen;
+wire [4:0] decode_o_rs1;
+wire [4:0] decode_o_rs2;
 
 decode u_decode(
     .clk                      	(clk                       ),
@@ -72,12 +76,19 @@ decode u_decode(
     .execute_i_alu_result     	(execute_o_alu_result      ),
     .regE_i_rd                	(regE_o_rd                 ),
     .regE_i_reg_wen           	(regE_o_reg_wen            ),
+
+    .regM_i_opcode_info         (regM_o_opcode_info),
     .regM_i_alu_result        	(regM_o_alu_result         ),
-    .regM_i_rd                	(regM_o_rd                 ),
+    .regM_i_rd                	(regM_o_rd                 ),    
     .regM_i_reg_wen           	(regM_o_reg_wen            ),
+    .memory_i_memdata           (memory_o_memdata),
+
+    .regW_i_pc                  (regW_o_pc),
+    .regW_i_opcode_info         (regW_o_opcode_info),
     .regW_i_alu_result          (regW_o_alu_result),
     .regW_i_rd                  (regW_o_rd),
     .regW_i_reg_wen             (regW_o_reg_wen),
+    .regW_i_memdata             (regW_o_memdata),
     
     .write_back_i_data        	(write_back_o_data         ),
     .write_back_i_rd          	(write_back_o_rd           ),
@@ -91,6 +102,8 @@ decode u_decode(
     .decode_o_regdata2        	(decode_o_regdata2         ),
     .decode_o_imm             	(decode_o_imm              ),
     .decode_o_rd              	(decode_o_rd               ),
+    .decode_o_rs1               (decode_o_rs1               ),
+    .decode_o_rs2               (decode_o_rs2               ),
     .decode_o_reg_wen         	(decode_o_reg_wen          )
 );
 
@@ -252,10 +265,13 @@ write_back u_write_back(
 
 
 // output declaration of module ctrl
+// output declaration of module ctrl
+wire regF_stall;
 wire regD_stall;
 wire regE_stall;
 wire regM_stall;
 wire regW_stall;
+wire regF_bubble;
 wire regD_bubble;
 wire regE_bubble;
 wire regM_bubble;
@@ -263,10 +279,16 @@ wire regW_bubble;
 
 ctrl u_ctrl(
     .execute_i_need_jump 	(execute_o_need_jump  ),
+    .regE_i_opcode_info  	(regE_o_opcode_info   ),
+    .regE_i_rd           	(regE_o_rd            ),
+    .decode_i_rs1        	(decode_o_rs1         ),
+    .decode_i_rs2        	(decode_o_rs2         ),
+    .regF_stall          	(regF_stall           ),
     .regD_stall          	(regD_stall           ),
     .regE_stall          	(regE_stall           ),
     .regM_stall          	(regM_stall           ),
     .regW_stall          	(regW_stall           ),
+    .regF_bubble         	(regF_bubble          ),
     .regD_bubble         	(regD_bubble          ),
     .regE_bubble         	(regE_bubble          ),
     .regM_bubble         	(regM_bubble          ),

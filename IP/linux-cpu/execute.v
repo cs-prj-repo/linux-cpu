@@ -70,7 +70,7 @@ wire [63:0] alu_src1 = op_alu_reg | op_alu_regw ? regE_i_regdata1    :
                        op_store                 ? regE_i_regdata1    : 
                        op_load                  ? regE_i_regdata1    : 
                        op_jal                   ? regE_i_pc          : 
-                       op_jalr                  ? regE_i_pc          : 64'd0;
+                       op_jalr                  ? regE_i_regdata1    : 64'd0;
 
 wire [63:0] alu_src2 = op_alu_reg | op_alu_regw  ? regE_i_regdata2   : 
                        op_alu_imm | op_alu_immw  ? regE_i_imm        : 
@@ -120,8 +120,8 @@ assign execute_o_need_jump = (inst_beq  && ($signed  (regE_i_regdata1) == $signe
 							 (inst_bgeu && ($unsigned(regE_i_regdata1) >= $unsigned(regE_i_regdata2)))  ? 1'b1:
 							 (op_jal | op_jalr)                                                         ? 1'b1: 1'b0;
 
-wire [63:0] tmp = op_jalr ? {execute_o_alu_result & (~1)} : 64'd0;
-assign  execute_o_jump_pc   = op_jalr               ? {execute_o_alu_result & (~1)}         : 
+wire [63:0] tmp = op_jalr ?  (execute_o_alu_result & ~1) : 64'd0;
+assign  execute_o_jump_pc   = op_jalr               ? (execute_o_alu_result & ~1)           : 
                               op_jal                ?  execute_o_alu_result                 : 
                               execute_o_need_jump   ?  execute_o_alu_result                 : 64'd0;
 

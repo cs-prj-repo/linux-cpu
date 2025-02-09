@@ -253,6 +253,7 @@ assign decode_o_rs2 = (opcode_I_TYPE | opcode_U_TYPE | opcode_J_TYPE) ? 5'd0:
 assign 	decode_o_valA =  (decode_o_rs1  == regE_i_wb_rd && regE_i_wb_rd != 5'd0 &&  regE_i_wb_reg_wen) ? execute_i_valE : 
 						 (decode_o_rs1  == regM_i_wb_rd && regM_i_wb_rd != 5'd0 &&  regM_i_wb_reg_wen && regM_i_wb_valD_sel == `wb_valD_sel_valM) ? memory_i_valM 		: 
 						 (decode_o_rs1  == regM_i_wb_rd && regM_i_wb_rd != 5'd0 &&  regM_i_wb_reg_wen && regM_i_wb_valD_sel == `wb_valD_sel_valE) ? regM_i_valE 		: 
+
 						 (decode_o_rs1  == regW_i_wb_rd && regW_i_wb_rd != 5'd0 &&  regW_i_wb_reg_wen && regW_i_wb_valD_sel == `wb_valD_sel_valE) ? regW_i_valE  		: 
 						 (decode_o_rs1  == regW_i_wb_rd && regW_i_wb_rd != 5'd0 &&  regW_i_wb_reg_wen && regW_i_wb_valD_sel == `wb_valD_sel_valM) ? regW_i_valM  		: 
 						 (decode_o_rs1  == regW_i_wb_rd && regW_i_wb_rd != 5'd0 &&  regW_i_wb_reg_wen && regW_i_wb_valD_sel == `wb_valD_sel_valP) ? regW_i_pc + 32'd4   : regfile_o_valA; 
@@ -263,7 +264,7 @@ assign  decode_o_valB =  (decode_o_rs2  == regE_i_wb_rd && regE_i_wb_rd != 5'd0 
 						 (decode_o_rs2  == regM_i_wb_rd && regM_i_wb_rd != 5'd0 && regM_i_wb_reg_wen && regM_i_wb_valD_sel == `wb_valD_sel_valE) ? regM_i_valE  :
 						 (decode_o_rs2  == regW_i_wb_rd && regW_i_wb_rd != 5'd0 && regW_i_wb_reg_wen && regW_i_wb_valD_sel == `wb_valD_sel_valE) ? regW_i_valE  : 
 						 (decode_o_rs2  == regW_i_wb_rd && regW_i_wb_rd != 5'd0 && regW_i_wb_reg_wen && regW_i_wb_valD_sel == `wb_valD_sel_valM) ? regW_i_valM  : 
-						 (decode_o_rs2  == regW_i_wb_rd && regW_i_wb_rd != 5'd0 &&  regW_i_wb_reg_wen && regW_i_wb_valD_sel == `wb_valD_sel_valP) ? regW_i_pc + 32'd4   : regfile_o_valB; 
+						 (decode_o_rs2  == regW_i_wb_rd && regW_i_wb_rd != 5'd0 && regW_i_wb_reg_wen && regW_i_wb_valD_sel == `wb_valD_sel_valP) ? regW_i_pc + 32'd4   : regfile_o_valB; 
 
 
 
@@ -315,11 +316,11 @@ assign  decode_o_wb_valD_sel 	=   (rv32I_R_TYPE | rv32I_I_Logic_Operator | rv32I
 									(rv32I_I_jalr   | rv32I_J_TYPE)               			    ? `wb_valD_sel_valP : `wb_valD_sel_valM;
 
 
-assign decode_o_need_jump = (rv32I_B_beq && ($signed(decode_o_valA) == $signed(decode_o_valB)))  ? 1'b1:
-							(rv32I_B_bne && ($signed(decode_o_valA) != $signed(decode_o_valB)))  ? 1'b1:
-							(rv32I_B_blt && ($signed(decode_o_valA) < $signed( decode_o_valB)))  ? 1'b1:
-							(rv32I_B_bge && ($signed(decode_o_valA) >= $signed(decode_o_valB)))  ? 1'b1:
-							(rv32I_B_bltu && ($unsigned(decode_o_valA) < $unsigned(decode_o_valB)))  ? 1'b1:
+assign decode_o_need_jump = (rv32I_B_beq  && ($signed(decode_o_valA)   == $signed(decode_o_valB)))  ? 1'b1:
+							(rv32I_B_bne  && ($signed(decode_o_valA)   != $signed(decode_o_valB)))  ? 1'b1:
+							(rv32I_B_blt  && ($signed(decode_o_valA)   <  $signed( decode_o_valB)))  ? 1'b1:
+							(rv32I_B_bge  && ($signed(decode_o_valA)   >= $signed(decode_o_valB)))  ? 1'b1:
+							(rv32I_B_bltu && ($unsigned(decode_o_valA) <  $unsigned(decode_o_valB)))  ? 1'b1:
 							(rv32I_B_bgeu && ($unsigned(decode_o_valA) >= $unsigned(decode_o_valB))) ? 1'b1:
 							(rv32I_J_jal | rv32I_I_jalr) ? 1'b1 : 1'b0;
 assign decode_o_is_jalr = rv32I_I_jalr;				

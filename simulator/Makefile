@@ -53,7 +53,8 @@ $(BIN): $(VSRCS) $(CSRCS)
 		--Mdir $(OBJ_DIR) --exe -o $(abspath $(BIN))
 
 override ARGS ?= --log=$(BUILD_DIR)/npc-log.txt
-override ARGS += --diff=$(SIM_HOME)/diff/riscv64-spike-so
+#override ARGS += --diff=$(SIM_HOME)/diff/riscv64-spike-so
+override ARGS += --diff=/home/akun/ysyx/nemu/tools/spike-diff/build/riscv64-spike-so
 override ARGS += --batch
 
 all: default

@@ -19,7 +19,7 @@ module regD(
             regD_o_instr            <= 32'd0;    
             regD_o_commit_info      <= 161'd0;
         end 
-        else begin
+        else if(~regD_stall) begin
             regD_o_pc               <= fetch_i_pc;
             regD_o_instr            <= fetch_i_instr;          
             regD_o_commit_info      <= fetch_i_commit_info;

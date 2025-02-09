@@ -13,7 +13,9 @@ extern "C" void dpi_ebreak(){
 extern "C" uint64_t dpi_mem_read(uint64_t addr, uint64_t len){
 	if(addr == 0) return 0;
 	else{
-		return pmem_read(addr, len);
+		uint64_t data = pmem_read(addr, len);
+//		printf("要读取的地址是addr=0x%lx, len=%ld, 读取出来的数据是data=%ld\n", addr, len,data);
+		return data;
 	}
 }
 

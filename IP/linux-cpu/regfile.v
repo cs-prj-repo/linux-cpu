@@ -28,6 +28,7 @@ initial begin
     for (i = 0; i < 32; i = i + 1) begin
         regfile[i] = {32'b0, i}; // Initializing with index values. Adjust as necessary.
     end
+    regfile[1] = 64'h80000020; 
 end
 
 assign regfile_o_regdata1 = decode_i_rs1 == 5'd0 ? 64'd0 : regfile[decode_i_rs1];

@@ -9,15 +9,18 @@ module decode(
 	input wire [4:0] 	regE_i_rd,
 	input wire 			regE_i_reg_wen,
 
+	input wire [11:0] 	regM_i_opcode_info,
 	input wire [63:0] 	regM_i_alu_result,
+	input wire [63:0]	memory_i_memdata,
 	input wire  [4:0]	regM_i_rd,
 	input wire 			regM_i_reg_wen,
 
+	input wire [11:0]	regW_i_opcode_info,
+	input wire [63:0]	regW_i_pc,
 	input wire [63:0]   regW_i_alu_result,
+	input wire [63:0]	regW_i_memdata,
 	input wire  [4:0]	regW_i_rd,
 	input wire  		regW_i_reg_wen,
-
-
 	//要写回的数据信息
 	input wire [63:0] 	write_back_i_data,
 	input wire [4:0]  	write_back_i_rd,
@@ -33,6 +36,9 @@ module decode(
     output wire [63:0]  decode_o_regdata1,   
     output wire [63:0]  decode_o_regdata2,   
 	output wire [63:0]  decode_o_imm,
+
+	output wire [4:0]	decode_o_rs1,
+	output wire [4:0]   decode_o_rs2,
 
 	//要写回的数据
 	output wire [4:0]	decode_o_rd,
@@ -162,18 +168,18 @@ wire inst_bgeu				= (inst_branch & func3_111);
 
 //------------------------------------译码结束-------------------------------------------
 assign decode_o_opcode_info = {
-	inst_lui,
-	inst_auipc,
-	inst_jal,
-	inst_jalr,
-	inst_alu_reg,
-	inst_alu_regw,
-	inst_alu_imm,
-	inst_alu_immw,
-	inst_load,
-	inst_store,
-	inst_branch,
-	inst_system
+	inst_lui,		//11
+	inst_auipc,		//10
+	inst_jal,		//9
+	inst_jalr,		//8
+	inst_alu_reg,	//7
+	inst_alu_regw,	//6
+	inst_alu_imm,	//5
+	inst_alu_immw,	//4
+	inst_load,   	//3
+	inst_store, 	//2
+	inst_branch,	//1
+	inst_system 	//0
 };
 assign decode_o_branch_info = {
 	inst_beq,  // 5
@@ -248,8 +254,13 @@ assign decode_o_imm = 	inst_i_type ? inst_i_imm :
 						inst_u_type ? inst_u_imm : 
 						inst_r_type ? inst_r_imm : 64'd0;
 
-assign decode_o_rd =  rd;
+assign decode_o_rd  		=  rd;
+assign decode_o_rs1 		=  rs1; 
+assign decode_o_rs2 		=  rs2;
+
 assign decode_o_reg_wen = inst_i_type | inst_u_type | inst_r_type | inst_j_type;
+
+
 
 wire [63:0] regfile_o_regdata1;
 wire [63:0] regfile_o_regdata2;
@@ -267,14 +278,27 @@ regfile u_regfile(
 //execute阶段数据前递
 
 
+wire regM_sel_memdata 		= regM_i_opcode_info[3];
+wire regM_sel_alu_result    = regM_i_opcode_info[1] | regM_i_opcode_info[4] | regM_i_opcode_info[5] | regM_i_opcode_info[6]|
+							  regM_i_opcode_info[7] | regM_i_opcode_info[10] | regM_i_opcode_info[11];
 
+wire regW_sel_memdata		= regW_i_opcode_info[3];
+wire regW_sel_pc			= regW_i_opcode_info[8] | regW_i_opcode_info[9];
+wire regW_sel_alu_result    = regW_i_opcode_info[1] | regW_i_opcode_info[4]  | regW_i_opcode_info[5] | regW_i_opcode_info[6]|
+							  regW_i_opcode_info[7] | regW_i_opcode_info[10] | regW_i_opcode_info[11];
 
 assign decode_o_regdata1 = regE_i_rd != 5'd0 && regE_i_reg_wen && regE_i_rd == rs1 ? execute_i_alu_result 	: 
-						   regM_i_rd != 5'd0 && regM_i_reg_wen && regM_i_rd == rs1 ? regM_i_alu_result 		: 
-						   regW_i_rd != 5'd0 && regW_i_reg_wen && regW_i_rd == rs1 ? regW_i_alu_result 		: regfile_o_regdata1;
+						   regM_i_rd != 5'd0 && regM_i_reg_wen && regM_i_rd == rs1 && regM_sel_alu_result	? regM_i_alu_result     : 
+						   regM_i_rd != 5'd0 && regM_i_reg_wen && regM_i_rd == rs1 && regM_sel_memdata  	? memory_i_memdata 		: 
+						   regW_i_rd != 5'd0 && regW_i_reg_wen && regW_i_rd == rs1 && regW_sel_alu_result 	? regW_i_alu_result 	: 
+						   regW_i_rd != 5'd0 && regW_i_reg_wen && regW_i_rd == rs1 && regW_sel_memdata		? regW_i_memdata 		: 
+						   regW_i_rd != 5'd0 && regW_i_reg_wen && regW_i_rd == rs1 && regW_sel_pc			? regW_i_pc + 64'd4     : regfile_o_regdata1; 
 
-assign decode_o_regdata2 = regE_i_rd != 5'd0 && regE_i_reg_wen && regE_i_rd == rs2 ? execute_i_alu_result 	:
-						   regM_i_rd != 5'd0 && regM_i_reg_wen && regM_i_rd == rs2 ? regM_i_alu_result 		: 
-						   regW_i_rd != 5'd0 && regW_i_reg_wen && regW_i_rd == rs2 ? regW_i_alu_result 		: regfile_o_regdata2;
+assign decode_o_regdata2 = regE_i_rd != 5'd0 && regE_i_reg_wen && regE_i_rd == rs2 ? execute_i_alu_result 	: 
+						   regM_i_rd != 5'd0 && regM_i_reg_wen && regM_i_rd == rs2 && regM_sel_alu_result	? regM_i_alu_result     : 
+						   regM_i_rd != 5'd0 && regM_i_reg_wen && regM_i_rd == rs2 && regM_sel_memdata  	? memory_i_memdata 		: 
+						   regW_i_rd != 5'd0 && regW_i_reg_wen && regW_i_rd == rs2 && regW_sel_alu_result 	? regW_i_alu_result 	: 
+						   regW_i_rd != 5'd0 && regW_i_reg_wen && regW_i_rd == rs2 && regW_sel_memdata		? regW_i_memdata 		: 
+						   regW_i_rd != 5'd0 && regW_i_reg_wen && regW_i_rd == rs2 && regW_sel_pc			? regW_i_pc + 64'd4     : regfile_o_regdata2; 
 
 endmodule
