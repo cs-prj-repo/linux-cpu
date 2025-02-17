@@ -91,5 +91,4 @@ void	 pmem_write(paddr_t addr, int len, word_t data);
 
 
 void     instr_trace(word_t pc, word_t commit_instr);
-
 #endif

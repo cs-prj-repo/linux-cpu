@@ -1,10 +1,11 @@
 TOPNAME :=top_cpu
-CPU_DIR=$(CPU_HOME)/IP/linux-cpu
+CPU_DIR=$(CPU_HOME)/IP/cache-cpu
+SRC_DIR:=$(SIM_HOME)/src
+
 
 
 
 PREFIX_NAME:=npc
-SRC_DIR:=$(SIM_HOME)/src
 TOPNAME_FLAG = --top-module $(TOPNAME)
 PREFIX_FLAG  = --prefix $(PREFIX_NAME)
 
@@ -25,13 +26,13 @@ default: $(BIN)
 $(shell mkdir -p $(BUILD_DIR))
 
 # project source
-VSRCS = $(shell find $(abspath $(CPU_DIR)) -name "*.v")
+VSRCS = $(shell find $(abspath $(CPU_DIR)) -name "*.v" -o -name "*.sv")
 CSRCS = $(shell find $(abspath $(SRC_DIR)) -name "*.c" -o -name "*.cpp" -o -name "*.cc")
 #header 
 
 INC_DIR  := $(SIM_HOME)/include
 
-INC_PATH = $(INC_DIR) $(INC_DIR)/utils $(INC_DIR)/generated
+INC_PATH = $(INC_DIR) $(INC_DIR)/utils 
 
 LDFLAGS += -lreadline -lhistory -ldl -pie $(shell llvm-config --libs)
 

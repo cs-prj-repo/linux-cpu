@@ -2,8 +2,8 @@ module fetch(
     input wire 		    clk,
 	input wire 		    rst,
 	input wire [63:0]   pc,
-	input wire          pc_valid,
 
+	input wire          pc_valid,
     output reg          fetch_o_ready,
     output reg          fetch_o_valid,
     output reg [31:0]   fetch_o_instr
@@ -45,7 +45,7 @@ always @(posedge clk) begin
         fetch_o_ready <= 1'b1;        
     end
     else if(cache_hit_index0) begin
-        fetch_o_instr <=    pc_offset == 4'd0  ? cache[pc_index][0][31: 0] :             
+        fetch_o_instr <=    pc_offset == 4'd0  ? cache[pc_index][0][31: 0] :
                             pc_offset == 4'd4  ? cache[pc_index][0][63:32] :
                             pc_offset == 4'd8  ? cache[pc_index][0][95:64] :
                             pc_offset == 4'd12 ? cache[pc_index][0][127:96]: fetch_o_instr;
@@ -53,7 +53,7 @@ always @(posedge clk) begin
         fetch_o_valid <= 1'b1;
     end
     else if(cache_hit_index1) begin
-        fetch_o_instr <=    pc_offset == 4'd0  ? cache[pc_index][1][31: 0] :             
+        fetch_o_instr <=    pc_offset == 4'd0  ? cache[pc_index][1][31: 0] :
                             pc_offset == 4'd4  ? cache[pc_index][1][63:32] :
                             pc_offset == 4'd8  ? cache[pc_index][1][95:64] :
                             pc_offset == 4'd12 ? cache[pc_index][1][127:96]: fetch_o_instr;
@@ -64,11 +64,10 @@ always @(posedge clk) begin
         cache[pc_index][0][180]     <= 1'b1;
         cache[pc_index][0][179:128] <= pc_tag;
         cache[pc_index][0][127:0]   <= memory_data;
-        fetch_o_instr <=    pc_offset == 4'd0  ? memory_data[31: 0] :             
+        fetch_o_instr <=    pc_offset == 4'd0  ? memory_data[31: 0] :
                             pc_offset == 4'd4  ? memory_data[63:32] :
                             pc_offset == 4'd8  ? memory_data[95:64] :
                             pc_offset == 4'd12 ? memory_data[127:96]: fetch_o_instr;
-
         fetch_o_ready <= 1'b1; // cache miss，需要等待 memory 响应        
         fetch_o_valid <= 1'b1;
     end

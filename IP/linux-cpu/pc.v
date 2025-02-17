@@ -3,15 +3,13 @@ module pc(
     input wire rst,
     input wire regF_stall,
     input wire regF_bubble,
+    
     input wire  [63:0] execute_i_jump_pc,
     input wire         execute_i_need_jump,
     input  wire [63:0] fetch_i_pre_pc,
     output reg  [63:0] pc
 );
 
-initial begin
-    
-end
 always @(posedge clk) begin 
     if(rst || regF_bubble) begin
         pc <= 64'h80000000;

@@ -31,7 +31,7 @@ module regM(
 );
 
 always @(posedge clk) begin
-    if(rst) begin
+    if(rst || bubble) begin
         regM_o_valE         <= 32'd0;
         regM_o_mem_rw       <= `mem_no_rw;
         regM_o_wb_reg_wen   <= `reg_wen_no_w;

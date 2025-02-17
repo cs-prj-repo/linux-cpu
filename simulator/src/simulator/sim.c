@@ -93,6 +93,9 @@ void execute(uint64_t n){
     }
     npc_single_cycle();                             
     update_cpu_state();
+
+    //和rtl实现有关系
+
     IFDEF(CONFIG_ITRACE,   instr_trace  (commit_pc, commit_instr));
     IFDEF(CONFIG_DIFFTEST, difftest_step(commit_pc, commit_pre_pc));  
   }
