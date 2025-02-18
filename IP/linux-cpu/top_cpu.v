@@ -22,14 +22,24 @@ pc u_pc(
     .pc                  	(pc             )
 );
 
-// output declaration of module icache
-wire [31:0] icache_o_instr;
-icache u_icache(
-    .clk            	(clk             ),
-    .rst            	(rst             ),
-    .pc             	(pc              ),
-    .icache_o_instr 	(icache_o_instr  )
+// output declaration of module fetch
+
+wire [63:0] fetch_o_pc;
+wire [63:0] fetch_o_pre_pc;
+wire [31:0] fetch_o_instr;
+wire [160:0] fetch_o_commit_info;
+fetch u_fetch(
+    .clk(clk),
+    .rst(rst),
+    .fetch_stall(fetch_stall),
+    .fetch_bubble(fetch_bubble),
+    .pc(pc),
+    .fetch_o_pc(fetch_o_pc),
+    .fetch_o_instr(fetch_o_instr),
+    .fetch_o_pre_pc(fetch_o_pre_pc),
+    .fetch_o_commit_info(fetch_o_commit_info)
 );
+
 
 
 
@@ -262,11 +272,14 @@ write_back u_write_back(
 
 // output declaration of module ctrl
 // output declaration of module ctrl
+// output declaration of module ctrl
+wire fetch_stall;
 wire regF_stall;
 wire regD_stall;
 wire regE_stall;
 wire regM_stall;
 wire regW_stall;
+wire fetch_bubble;
 wire regF_bubble;
 wire regD_bubble;
 wire regE_bubble;
@@ -279,11 +292,13 @@ ctrl u_ctrl(
     .regE_i_rd           	(regE_o_rd            ),
     .decode_i_rs1        	(decode_o_rs1         ),
     .decode_i_rs2        	(decode_o_rs2         ),
+    .fetch_stall         	(fetch_stall          ),
     .regF_stall          	(regF_stall           ),
     .regD_stall          	(regD_stall           ),
     .regE_stall          	(regE_stall           ),
     .regM_stall          	(regM_stall           ),
     .regW_stall          	(regW_stall           ),
+    .fetch_bubble        	(fetch_bubble         ),
     .regF_bubble         	(regF_bubble          ),
     .regD_bubble         	(regD_bubble          ),
     .regE_bubble         	(regE_bubble          ),
