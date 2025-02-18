@@ -17,11 +17,11 @@ module regfile(
 );
 reg [63:0] regfile[31:0]; // Changed the register file to hold 32 entries of 64-bit each.
 
-// import "DPI-C" function void dpi_read_regfile(input logic [63 : 0] a []); // Updated DPI function for 64-bit.
+import "DPI-C" function void dpi_read_regfile(input logic [63 : 0] a []); // Updated DPI function for 64-bit.
 
-// initial begin
-//     dpi_read_regfile(regfile);
-// end
+initial begin
+    dpi_read_regfile(regfile);
+end
 
 initial begin
     integer i;
