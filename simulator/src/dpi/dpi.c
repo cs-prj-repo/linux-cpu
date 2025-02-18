@@ -11,10 +11,13 @@ extern "C" void dpi_ebreak(){
 }
 
 extern "C" uint32_t dpi_instr_mem_read(uint64_t addr){
-	if(addr == 0) return 0;
-	else {
+  if(addr >= CONFIG_MBASE && addr < CONFIG_MBASE + CONFIG_MSIZE){
+        //printf("访问的内存地址是0x%lx\n", addr);
 		return pmem_read(addr, 4);
-	}
+	}else{
+//      printf("你将要访问的内存地址是0x%lx, 超出了内存区域\n", addr);
+      return 0;
+   }
 }
 
 extern "C" uint64_t dpi_mem_read(uint64_t addr, uint64_t len){

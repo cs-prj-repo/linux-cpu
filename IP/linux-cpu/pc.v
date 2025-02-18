@@ -6,7 +6,6 @@ module pc(
     
     input wire  [63:0] execute_i_jump_pc,
     input wire         execute_i_need_jump,
-    input  wire [63:0] fetch_i_pre_pc,
     output reg  [63:0] pc
 );
 
@@ -21,7 +20,7 @@ always @(posedge clk) begin
         pc <= execute_i_jump_pc;        
     end
     else begin
-        pc <= fetch_i_pre_pc;
+        pc <= pc + 64'd4; //pre_pc
     end
     
 end

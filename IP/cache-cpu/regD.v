@@ -11,6 +11,5 @@ always @(posedge clk) begin
     else begin
         regD_o_instr <= fetch_i_instr;
     end
-end
-
+end 
 endmodule

@@ -35,16 +35,13 @@ word_t pmem_read(word_t addr, int len){
 }
 
 extern "C" uint32_t dpi_instr_mem_read(uint64_t addr){
-    if(addr == 0){
-        return 0;
-    }
-    else if(addr >= CONFIG_MBASE && addr < CONFIG_MBASE + CONFIG_MSIZE){
+  if(addr >= CONFIG_MBASE && addr < CONFIG_MBASE + CONFIG_MSIZE){
         //printf("访问的内存地址是0x%lx\n", addr);
 		return pmem_read(addr, 4);
 	}else{
-        //printf("你将要访问的内存地址是0x%lx, 超出了内存区域\n", addr);
-        return 0;
-    }
+      printf("你将要访问的内存地址是0x%lx, 超出了内存区域\n", addr);
+      return 0;
+   }
 }
 
 

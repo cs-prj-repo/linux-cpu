@@ -13,31 +13,25 @@ module top_cpu(
 wire [63:0] pc;
 
 pc u_pc(
-    .clk                 	(clk                  ),
-    .rst                 	(rst                  ),
-    .regF_stall             (regF_stall),
-    .regF_bubble            (regF_bubble),
-    .execute_i_jump_pc   	(execute_o_jump_pc    ),
-    .execute_i_need_jump 	(execute_o_need_jump  ),
-    .fetch_i_pre_pc      	(fetch_o_pre_pc       ),
-    .pc                  	(pc                   )
+    .clk                 	(clk            ),
+    .rst                 	(rst            ),
+    .regF_stall             (regF_stall            ),
+    .regF_bubble            (regF_bubble           ),
+    .execute_i_jump_pc   	(execute_o_jump_pc     ),
+    .execute_i_need_jump 	(execute_o_need_jump   ),
+    .pc                  	(pc             )
 );
 
-// output declaration of module fetch
-wire [31:0]  fetch_o_instr;
-wire [63:0]  fetch_o_pc;
-wire [63:0]  fetch_o_pre_pc;
-wire [160:0] fetch_o_commit_info;
-
-fetch u_fetch(
-    .clk(clk),
-    .rst(rst),
-    .pc                  	(pc                   ),
-    .fetch_o_instr       	(fetch_o_instr        ),
-    .fetch_o_pc          	(fetch_o_pc           ),
-    .fetch_o_pre_pc      	(fetch_o_pre_pc       ),
-    .fetch_o_commit_info 	(fetch_o_commit_info  )
+// output declaration of module icache
+wire [31:0] icache_o_instr;
+icache u_icache(
+    .clk            	(clk             ),
+    .rst            	(rst             ),
+    .pc             	(pc              ),
+    .icache_o_instr 	(icache_o_instr  )
 );
+
+
 
 // output declaration of module regD
 wire [63:0] regD_o_pc;
@@ -45,15 +39,15 @@ wire [31:0] regD_o_instr;
 wire [160:0] regD_o_commit_info;
 
 regD u_regD(
-    .clk                 	(clk                  ),
-    .rst                 	(rst                  ),
+    .clk                 	(clk           ),
+    .rst                 	(rst           ),
     .regD_bubble         	(regD_bubble          ),
     .regD_stall          	(regD_stall           ),
     .fetch_i_pc          	(fetch_o_pc           ),
-    .fetch_i_instr       	(fetch_o_instr        ),
+    .fetch_i_instr       	(fetch_o_instr ),
     .fetch_i_commit_info 	(fetch_o_commit_info  ),
     .regD_o_pc           	(regD_o_pc            ),
-    .regD_o_instr        	(regD_o_instr         ),
+    .regD_o_instr        	(regD_o_instr  ),
     .regD_o_commit_info  	(regD_o_commit_info   )
 );
 

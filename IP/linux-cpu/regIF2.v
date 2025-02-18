@@ -4,13 +4,13 @@ module regD(
     input wire        regD_bubble,
     input wire        regD_stall,
 
-    input wire [63:0]  fetch_i_pc,    
-    input wire [31:0]  fetch_i_instr,     
-    input wire [160:0] fetch_i_commit_info,
+    input wire [63:0]  regIF1_i_pc,
+    input wire [31:0]  regIF1_i_instr,
+    input wire [160:0] regIF1_i_commit_info,
 
-    output reg [63:0]  regD_o_pc,
-    output reg [31:0]  regD_o_instr,      
-    output reg [160:0] regD_o_commit_info
+    output reg [63:0]  regIF2_o_pc,
+    output reg [31:0]  regIF2_o_instr,      
+    output reg [160:0] regIF2_o_commit_info
 );
 
     always @(posedge clk) begin

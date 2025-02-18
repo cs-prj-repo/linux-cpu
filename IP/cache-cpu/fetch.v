@@ -4,11 +4,11 @@ module fetch(
 	input wire [63:0]   pc,
 
 	input wire          pc_valid,
+    output wire [31:0]  fetch_o_tmp_instr,
     output reg          fetch_o_ready,
     output reg          fetch_o_valid,
     output reg [31:0]   fetch_o_instr
 );
-
 localparam cache_size       = 8192;                                     //8192字节，是8KB
 localparam addr_size        = 64;                                       //地址是64bit
 localparam way_size         = 2;                                        //二路组相连
@@ -19,17 +19,15 @@ localparam block_offset     = $clog2(cache_data);                       //16字�
 localparam tag_size         = addr_size - index_size - block_offset;    //64bit地址中剩下的数据全部是tag
 localparam cache_line_size  = 1 + tag_size + cache_data * 8;            //181
 
-//  reg [63:0] pc           =  [tag(63:12), index(11:4),  offset(3:0)];
+//  reg [63:0]  pc          =  [tag(63:12), index(11:4),  offset(3:0)];
 //  reg [180:0] cache_line  =  [valid(180), tag(179:128), cache_data(127:0)];
-
 reg [cache_line_size - 1: 0] cache [num_sets-1:0][way_size-1:0]; // [Valid bit, Tag, Data]
 
 // output declaration of module memory
-
 import "DPI-C" function int dpi_instr_mem_read (input longint addr);
 wire [127:0] memory_data = {dpi_instr_mem_read(pc+12), dpi_instr_mem_read(pc+8), 
-                            dpi_instr_mem_read(pc+4),  dpi_instr_mem_read(pc)};
-wire [31:0] tmp_data = dpi_instr_mem_read(pc);
+                            dpi_instr_mem_read(pc+4) , dpi_instr_mem_read(pc)  };
+assign fetch_o_tmp_instr = dpi_instr_mem_read(pc);
 //pc分解
 wire [51:0] pc_tag             =   pc[63:12];
 wire [7 :0] pc_index           =   pc[11: 4];
