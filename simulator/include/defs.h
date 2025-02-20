@@ -17,8 +17,6 @@ void 		cpu_exec(uint64_t n);
 //cpu.c
 
 const char* reg_name(int idx);
-void   		isa_reg_display();
-word_t 		get_reg_val(const char *s, bool *success) ;
 
 int 	check_reg_idx(int idx);
 int 	check_csr_idx(int idx);
@@ -37,17 +35,6 @@ void 		init_trace();
 //timer.c
 void		init_rand();
 
-
-
-
-
-//watchpoint.c
-word_t 		get_expr_val(char *args, bool *success);
-void 		wp_print();
-void 		wp_check_and_update();
-void 		wp_del_watched(int num);
-void 		wp_add_watched(char *expr);
-void 		wp_init();
 
 
 //reg.c

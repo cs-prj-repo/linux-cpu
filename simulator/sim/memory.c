@@ -4,7 +4,6 @@
 #include <string.h>
 #include <assert.h>
 #include <time.h>
-
 #define CONFIG_MSIZE 0x8000000
 #define CONFIG_MBASE 0x80000000
 typedef uint64_t word_t;
@@ -17,8 +16,6 @@ void init_mem() {
       pmem[i] = rand() % 0x100;  // 确保值在0-255范围内
     }
 }
-
-
 static inline word_t host_read(void *addr, int len) {
   switch (len) {
     case 1: return *(uint8_t  *)addr;

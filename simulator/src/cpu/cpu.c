@@ -31,26 +31,5 @@ const char* reg_name(int idx) {
 }
 
 
-//打印寄存器的值
-void   isa_reg_display(){
-  printf(" name       DEC         HEX\n");
-  for(int i = 0; i < 32; ++i){
-    printf("%3s    %-10lu  %#-10lx\n",reg_name(i), gpr(i), gpr(i));
-  }
-}
 
-//
-word_t get_reg_val(const char *s, bool *success) {
-  if(strcmp(s, "pc")  == 0 || strcmp(s, "PC") == 0){
-    *success = true;
-    return cpu.pc;
-  }
-  for(int i = 0; i < GPR_NUM; ++i){ 
-    if(strcmp(reg_name(i), s) == 0){
-      *success = true;
-      return gpr(i);         
-    }
-  }
-  *success = false;
-  return 0;
-}
+

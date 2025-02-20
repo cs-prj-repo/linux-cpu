@@ -82,17 +82,25 @@ void load_builded_img(){
  memcpy(guest_to_host(RESET_VECTOR), img, sizeof(img));
 }
 
-void init_monitor(int argc, char **argv){
+void init_simulator(int argc, char **argv){
   parse_args(argc, argv);
   init_rand();
   init_log(log_file);
   init_mem();
   load_builded_img();
   long img_size = load_img();
-
   npc_init();
   init_difftest(diff_so_file,img_size, difftest_port);
   init_disasm("riscv64-pc-linux-gnu");
   welcome();
 }
 
+
+#include <common.h>
+#include <defs.h>
+
+int main(int argc, char **argv){
+  init_simulator(argc, argv);
+  cpu_exec(UINT64_MAX);
+  return 0;
+}
