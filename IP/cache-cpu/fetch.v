@@ -13,8 +13,8 @@ wire [31:0] icache_o_instr;
 icache u_icache(
     .clk            	(clk             ),
     .rst            	(rst             ),
-    .bubble(fetch_bubble),
-    .stall(fetch_stall),
+    .bubble             (fetch_bubble    ),
+    .stall              (fetch_stall     ),
     .pc             	(pc              ),
     .icache_o_instr 	(icache_o_instr  )
 );
@@ -29,8 +29,10 @@ always @(posedge clk) begin
     else if(~fetch_stall)begin
         fetch_o_pc  <= pc;
         commit      <= 1'b1;
-    end 
+    end
 end
+
+
 assign fetch_o_instr        =  icache_o_instr;
 assign fetch_o_pre_pc       =  fetch_o_pc + 64'd4;
 assign fetch_o_commit_info  = {commit, icache_o_instr, fetch_o_pre_pc, fetch_o_pc};

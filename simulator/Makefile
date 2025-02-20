@@ -1,6 +1,6 @@
 TOPNAME :=top_cpu
-CPU_DIR=$(CPU_HOME)/IP/mmu_cpu
-SRC_DIR:=$(SIM_HOME)/sim
+CPU_DIR=$(CPU_HOME)/IP/cache-cpu
+SRC_DIR:=$(SIM_HOME)/src
 
 
 PREFIX_NAME:=npc

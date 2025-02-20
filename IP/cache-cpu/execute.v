@@ -70,7 +70,9 @@ wire [63:0] alu_src1 = op_alu_reg | op_alu_regw ? regE_i_regdata1    :
                        op_store                 ? regE_i_regdata1    : 
                        op_load                  ? regE_i_regdata1    : 
                        op_jal                   ? regE_i_pc          : 
-                       op_jalr                  ? regE_i_regdata1    : 64'd0;
+                       op_jalr                  ? regE_i_regdata1    : 
+                       op_lui                   ? 64'd0              : 
+                       op_auipc                 ? regE_i_pc          : 64'd0;
 
 wire [63:0] alu_src2 = op_alu_reg | op_alu_regw  ? regE_i_regdata2   : 
                        op_alu_imm | op_alu_immw  ? regE_i_imm        : 
@@ -78,31 +80,69 @@ wire [63:0] alu_src2 = op_alu_reg | op_alu_regw  ? regE_i_regdata2   :
                        op_store                  ? regE_i_imm        : 
                        op_load                   ? regE_i_imm        : 
                        op_jal                    ? regE_i_imm        : 
-                       op_jalr                   ? regE_i_imm        : 64'd0;
+                       op_jalr                   ? regE_i_imm        : 
+                       op_lui                    ? regE_i_imm        : 
+                       op_auipc                  ? regE_i_imm        : 64'd0;
 
-assign execute_o_alu_result = op_lui    ?   {             regE_i_imm  }                                                     :
-                              op_auipc  ?   {regE_i_pc +  regE_i_imm  }                                                     :
+wire [63:0]   signed_alu_src1 = $signed(alu_src1);
+wire [63:0]   signed_alu_src2 = $signed(alu_src2);
+wire  [127:0]   signed_ext_alu_src1 = {{64{alu_src1[63]}}, alu_src1}; // 进行符号扩展
+wire  [127:0]   signed_ext_alu_src2 = {{64{alu_src2[63]}}, alu_src2}; // 进行符号扩展
+wire  [127:0] unsigned_ext_alu_src1 = {64'd0, alu_src1};
+wire  [127:0] unsigned_ext_alu_src2 = {64'd0, alu_src2};
+
+wire  [127:0]    ext_mul_result = { signed_ext_alu_src1   *    signed_ext_alu_src2}; //默认是sign
+wire  [127:0] su_ext_mul_result = { signed_ext_alu_src1   *  unsigned_ext_alu_src2};
+wire  [127:0]  u_ext_mul_result = { unsigned_ext_alu_src1 *  unsigned_ext_alu_src2};
+
+
+wire [31:0]          div_result = {$signed(alu_src1[31:0]) /   $signed(alu_src2[31:0])}; 
+wire [31:0]         udiv_result = {$signed(alu_src1[31:0]) / $unsigned(alu_src2[31:0])}; 
+
+
+wire [63:0] alu_add_result  = alu_src1 + alu_src2;
+wire [63:0] alu_sub_result  = alu_src1 - alu_src2;
+wire [63:0] alu_sll_result  = {$signed(alu_src1)  << $signed(alu_src2[5:0])};
+wire [63:0] alu_sllw_result = {$signed(alu_src1)  << $signed(alu_src2[4:0])};
+
+wire [63:0] alu_sra_result  =  $signed(alu_src1)    >>> alu_src2[5:0];
+wire [31:0] alu_sraw_result = {$signed(alu_src1[31:0])  >>> alu_src2[4:0]};
+
+
+
+assign execute_o_alu_result = op_lui    ?   {alu_src1  +  alu_src2    }                                                     :
+                              op_auipc  ?   {alu_src1  +  alu_src2    }                                                     :
                               op_branch ?   {alu_src1  +  alu_src2    }                                                     : 
                               op_store  ?   {alu_src1  +  alu_src2    }                                                     : 
                               op_jal    ?   {alu_src1  +  alu_src2    }                                                     : 
                               op_jalr   ?   {alu_src1  +  alu_src2    }                                                     :
                               op_load   ?   {alu_src1  +  alu_src2    }                                                     : 
                               alu_and   ?   {alu_src1  &  alu_src2    }                                                     :
-                              alu_add   ?   {alu_src1  +  alu_src2    }                                                     : 
-                              alu_sub   ?   {alu_src1  -  alu_src2    }                                                     : 
-                              alu_sll   ?   {$signed(alu_src1)    << $signed(alu_src2[5:0]  )}                              :
+                              alu_add   ?   {alu_add_result  }                                                              : 
+                              alu_addw  ?   {{32{{alu_add_result}[31]}},      { alu_add_result}[31:0] }                     : 
+                              alu_sub   ?   {alu_sub_result    }                                                            : 
+                              alu_subw  ?   {{32{{alu_sub_result}[31]}},      { alu_sub_result}[31:0] }                     : 
+                              alu_sll   ?   {alu_sll_result  }                                                              :
+                              alu_sllw  ?   {{32{alu_sllw_result [31]}}, alu_sllw_result[31:0]}                             : 
                               alu_slt   ?   ($signed(alu_src1)    <  $signed(alu_src2       )) ? 64'd1 : 64'd0              :    
                               alu_sltu  ?   ($unsigned(alu_src1)  <  $unsigned(alu_src2     )) ? 64'd1 : 64'd0              :
                               alu_xor   ?   { alu_src1 ^ alu_src2}                                                          :
                               alu_or    ?   { alu_src1 | alu_src2}                                                          :
-                              alu_sra   ?   {$signed(alu_src1)    >>> alu_src2[5:0] }                                       : 
-                              alu_srl   ?   {$unsigned(alu_src1)    >>> alu_src2[5:0] }                                     :
-                              alu_addw  ?   {{32{{alu_src1 + alu_src2}[31]}},      { alu_src1  +  alu_src2}[31:0] }         : 
-                              alu_subw  ?   {{32{{alu_src1 - alu_src2}[31]}},      { alu_src1  -  alu_src2}[31:0] }         : 
-                              alu_sllw  ?   {{32{{$signed(alu_src1)  << $signed(alu_src2[4:0])}[31]}}, { $signed(alu_src1)  << $signed(alu_src2[4:0])}[31:0]} : 
+                              alu_sra   ?    alu_sra_result                                                                 : 
+                              alu_sraw  ?   {{32{alu_sraw_result[31]}}, alu_sraw_result[31:0]      }                        : 
+                              alu_srl   ?   {$unsigned(alu_src1)   >>> alu_src2[5:0] }                                      :
                               alu_srlw  ?   {{32{{$unsigned(alu_src1[31:0]) >>> alu_src2[4:0] }[31]}}, {{$unsigned(alu_src1[31:0]) >>> alu_src2[4:0] }}     } :
-                              alu_sraw  ?   {{32{{$signed(alu_src1[31:0])   >>> alu_src2[4:0] }[31]}}, {{$signed(alu_src1[31:0])   >>> alu_src2[4:0] }}     } : 64'd0;
-
+                              alu_mul   ?   {   alu_src1 * alu_src2    }                                                    : 
+                              alu_mulh  ?   {    ext_mul_result[127:64]}                                                    : 
+                              alu_mulhsu?   { su_ext_mul_result[127:64]}                                                    : 
+                              alu_mulhu ?   {  u_ext_mul_result[127:64]}                                                    : 
+                              alu_mulw  ?   {{32{{alu_src1 * alu_src2}[31]}},      { alu_src1  *  alu_src2}[31:0] }         : 
+                              alu_div   ?   ( alu_src2 == 64'd0 ? 64'hFFFFFFFFFFFFFFFF :
+                                              alu_src1 == 64'h8000000000000000 && alu_src2 == 64'hFFFFFFFFFFFFFFFF ? 64'h8000000000000000   : {$signed(alu_src1) / $signed(alu_src2)})    : 
+                              alu_divu  ?   ( alu_src2 == 64'd0 ? 64'hFFFFFFFFFFFFFFFF :     {$signed(alu_src1) / $unsigned(alu_src2)})    :
+                              alu_divw  ?   ( alu_src2 == 64'd0 ? 64'hFFFFFFFFFFFFFFFF :
+                                              alu_src1 == 64'hFFFFFFFF80000000 && alu_src2 == 64'hFFFFFFFFFFFFFFFF ? 64'hFFFFFFFF80000000   : {{32{div_result[31]}}, div_result} )    :
+                              alu_divuw ?   ( alu_src2 == 64'd0 ? 64'hFFFFFFFFFFFFFFFF :     {{32{udiv_result[31]}}, udiv_result} )         : 64'd0;
 
 wire inst_beq   = regE_i_branch_info[5];
 wire inst_bne   = regE_i_branch_info[4];
@@ -110,8 +150,6 @@ wire inst_blt   = regE_i_branch_info[3];
 wire inst_bge   = regE_i_branch_info[2];
 wire inst_bltu  = regE_i_branch_info[1];
 wire inst_bgeu  = regE_i_branch_info[0];
-
-
 assign execute_o_need_jump = (inst_beq  && ($signed  (regE_i_regdata1) == $signed  (regE_i_regdata2)))  ? 1'b1:
 							 (inst_bne  && ($signed  (regE_i_regdata1) != $signed  (regE_i_regdata2)))  ? 1'b1:
 							 (inst_blt  && ($signed  (regE_i_regdata1) <  $signed  (regE_i_regdata2)))  ? 1'b1:

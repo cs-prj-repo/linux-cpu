@@ -48,9 +48,11 @@ always @(posedge clk) begin
                                 pc_offset == 4'd12 ? cache[pc_index][1][127:96]: icache_o_instr;
         end
         else if(cache_miss) begin
-            cache[pc_index][0][180]     <= 1'b1;
-            cache[pc_index][0][179:128] <= pc_tag;
-            cache[pc_index][0][127:0]   <= memory_data;
+            integer rand_val;
+            rand_val = $random % 2; // 生成0或1
+            cache[pc_index][rand_val][180]     <= 1'b1;
+            cache[pc_index][rand_val][179:128] <= pc_tag;
+            cache[pc_index][rand_val][127:0]   <= memory_data;
             icache_o_instr <=    pc_offset == 4'd0  ? memory_data[31: 0] :             
                                  pc_offset == 4'd4  ? memory_data[63:32] :
                                  pc_offset == 4'd8  ? memory_data[95:64] :

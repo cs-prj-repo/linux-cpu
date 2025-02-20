@@ -13,13 +13,13 @@ module top_cpu(
 wire [63:0] pc;
 
 pc u_pc(
-    .clk                 	(clk            ),
-    .rst                 	(rst            ),
+    .clk                 	(clk                   ),
+    .rst                 	(rst                   ),
     .regF_stall             (regF_stall            ),
     .regF_bubble            (regF_bubble           ),
     .execute_i_jump_pc   	(execute_o_jump_pc     ),
     .execute_i_need_jump 	(execute_o_need_jump   ),
-    .pc                  	(pc             )
+    .pc                  	(pc                    )
 );
 
 // output declaration of module fetch
