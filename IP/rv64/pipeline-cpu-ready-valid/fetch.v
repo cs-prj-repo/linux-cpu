@@ -1,3 +1,4 @@
+
 module fetch(
     input wire clk,
     input wire rst,
@@ -16,4 +17,11 @@ assign fetch_o_pc           = pc;
 assign fetch_o_instr        =  dpi_instr_mem_read(pc);
 assign fetch_o_pre_pc       =  fetch_o_pc + 64'd4;
 assign fetch_o_commit_info  = {1'b1, fetch_o_instr, fetch_o_pre_pc, fetch_o_pc};
-endmodule
+endmodule 
+
+
+
+// y_allow_in = 1, 在下一个上升沿，允许x流入
+// x_valid    = 1, 表示
+
+//每个模块内部有一个ready_go

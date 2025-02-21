@@ -3,15 +3,23 @@ module regD(
     input wire         rst,               // 复位信号
     input wire         regD_bubble,
     input wire         regD_stall,
-    
+
     input wire [63:0]  fetch_i_pc,
     input wire [31:0]  fetch_i_instr,
     input wire [160:0] fetch_i_commit_info,
 
     output reg [63:0]  regD_o_pc,
     output reg [31:0]  regD_o_instr,      
-    output reg [160:0] regD_o_commit_info
+    output reg [160:0] regD_o_commit_info,
+    output wire regD_o_allow_in
 );
+reg regD_o_ready;
+assign y_allow_in   = !y_valid || (y_ready_go && z_allow_in)
+assign y_to_z_valid = y_valid && y_ready_go;
+//上一级的valid,  下一级的allow_in
+//  0                 0          
+
+
     always @(posedge clk) begin
         if(rst || regD_bubble) begin
             regD_o_pc               <= 64'd0;

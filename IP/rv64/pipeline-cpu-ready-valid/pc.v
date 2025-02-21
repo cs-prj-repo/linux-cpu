@@ -3,15 +3,21 @@ module pc(
     input wire rst,
     input wire regF_stall,
     input wire regF_bubble,
-    
+    input   wire       regD_i_allow_in,
+
+    output  reg        pc_o_valid
     input wire  [63:0] execute_i_jump_pc,
     input wire         execute_i_need_jump,
     output reg  [63:0] pc
+    
 );
+
+
 
 always @(posedge clk) begin 
     if(rst || regF_bubble) begin
-        pc <= 64'h80000000;
+        pc         <= 64'h80000000;
+        // pc_o_valid <= 1'b0;
     end
     else if(regF_stall) begin
         //在stall的时时候寄存器值不变化
