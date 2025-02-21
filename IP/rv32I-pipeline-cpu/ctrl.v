@@ -19,7 +19,6 @@ module ctrl(
     output wire          ctrl_o_regM_bubble,
     output wire          ctrl_o_regW_bubble
 );
-regD
 //对于BEQ分支预测指令来说
 //如果预测出错，应该冲刷
 
