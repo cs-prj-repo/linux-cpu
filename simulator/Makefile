@@ -1,5 +1,5 @@
 TOPNAME :=top_cpu
-CPU_DIR=$(CPU_HOME)/IP/pipeline-cpu-ready-valid
+CPU_DIR=$(CPU_HOME)/IP/rv64/pipeline-cpu
 SRC_DIR:=$(SIM_HOME)/src
 
 

@@ -10,12 +10,12 @@ module regD(
 
     output reg [63:0]  regD_o_pc,
     output reg [31:0]  regD_o_instr,      
-    output reg [160:0] regD_o_commit_info,
-    output wire regD_o_allow_in
+    output reg [160:0] regD_o_commit_info
+    // output wire regD_o_allow_in
 );
-reg regD_o_ready;
-assign y_allow_in   = !y_valid || (y_ready_go && z_allow_in)
-assign y_to_z_valid = y_valid && y_ready_go;
+// reg regD_o_ready;
+// assign y_allow_in   = !y_valid || (y_ready_go && z_allow_in)
+// assign y_to_z_valid = y_valid && y_ready_go;
 //上一级的valid,  下一级的allow_in
 //  0                 0          
 

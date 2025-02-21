@@ -1,27 +1,7 @@
-
 module fetch(
-    input wire clk,
-    input wire rst,
-    input wire fetch_stall,
-    input wire fetch_bubble,
-    input  wire  [63:0]  pc,
-    output wire  [63:0]  fetch_o_pc,
-    output wire  [31:0]  fetch_o_instr,
-    output wire  [63:0]  fetch_o_pre_pc,
-    output wire  [160:0] fetch_o_commit_info
+    input  wire   pc_o_bus,
+    output wire   fetch_o_bus
 );
 
-import "DPI-C" function     int dpi_instr_mem_read (input longint addr);
 
-assign fetch_o_pc           = pc;
-assign fetch_o_instr        =  dpi_instr_mem_read(pc);
-assign fetch_o_pre_pc       =  fetch_o_pc + 64'd4;
-assign fetch_o_commit_info  = {1'b1, fetch_o_instr, fetch_o_pre_pc, fetch_o_pc};
-endmodule 
-
-
-
-// y_allow_in = 1, 在下一个上升沿，允许x流入
-// x_valid    = 1, 表示
-
-//每个模块内部有一个ready_go
+endmodule
