@@ -1,6 +1,6 @@
 TOPNAME :=top_cpu
-CPU_DIR=$(CPU_HOME)/IP/rv64/pipeline-cpu
-SRC_DIR:=$(SIM_HOME)/src
+CPU_DIR=$(CPU_HOME)/IP/rv64/pipeline_cpu_two
+SRC_DIR:=$(SIM_HOME)/sim
 
 
 PREFIX_NAME:=npc
