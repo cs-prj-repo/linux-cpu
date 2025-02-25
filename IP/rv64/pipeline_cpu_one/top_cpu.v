@@ -15,8 +15,6 @@ wire [63:0] pc;
 pc u_pc(
     .clk                 	(clk                   ),
     .rst                 	(rst                   ),
-    .regF_stall             (regF_stall            ),
-    .regF_bubble            (regF_bubble           ),
     .execute_i_jump_pc   	(execute_o_jump_pc     ),
     .execute_i_need_jump 	(execute_o_need_jump   ),
     .pc                  	(pc                    )
@@ -51,8 +49,6 @@ wire [160:0] regD_o_commit_info;
 regD u_regD(
     .clk                 	(clk           ),
     .rst                 	(rst           ),
-    .regD_bubble         	(regD_bubble          ),
-    .regD_stall          	(regD_stall           ),
     .fetch_i_pc          	(fetch_o_pc           ),
     .fetch_i_instr       	(fetch_o_instr ),
     .fetch_i_commit_info 	(fetch_o_commit_info  ),
@@ -129,8 +125,6 @@ wire [160:0] regE_o_commit_info;
 regE u_regE(
     .clk                      	(clk                       ),
     .rst                      	(rst                       ),
-    .regE_bubble              	(regE_bubble               ),
-    .regE_stall               	(regE_stall                ),
     .decode_i_imm             	(decode_o_imm              ),
     .decode_i_regdata1        	(decode_o_regdata1         ),
     .decode_i_regdata2        	(decode_o_regdata2         ),
@@ -192,8 +186,6 @@ wire [160:0] regM_o_commit_info;
 regM u_regM(
     .clk                    	(clk                     ),
     .rst                    	(rst                     ),
-    .regM_bubble            	(regM_bubble             ),
-    .regM_stall             	(regM_stall              ),
     .regE_i_pc              	(regE_o_pc               ),
     .regE_i_load_store_info 	(regE_o_load_store_info  ),
     .regE_i_opcode_info     	(regE_o_opcode_info      ),
@@ -235,8 +227,6 @@ wire [160:0] regW_o_commit_info;
 regW u_regW(
     .clk                	(clk                 ),
     .rst                	(rst                 ),
-    .regW_bubble        	(regW_bubble         ),
-    .regW_stall         	(regW_stall          ),
     .regM_i_commit_info 	(regM_o_commit_info  ),
     .regM_i_rd          	(regM_o_rd           ),
     .regM_i_pc          	(regM_o_pc           ),

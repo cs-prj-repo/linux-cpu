@@ -34,8 +34,7 @@ module mem_stage (
     wire [4:0] mem_reg_waddr;
     wire [`XLEN-1:0] mem_data_sram_rdata;
     wire mem_inst_ebreak;
-    assign {mem_pc, mem_alu_result, mem_rf_wr_sel, mem_rf_wr_en, 
-            mem_reg_waddr, mem_data_sram_rdata, mem_inst_ebreak} = mem_reg;
+    assign {mem_pc, mem_alu_result, mem_rf_wr_sel, mem_rf_wr_en, mem_reg_waddr, mem_data_sram_rdata, mem_inst_ebreak} = mem_reg;
 
     // output bus to WB
     reg [`XLEN-1:0] final_result;

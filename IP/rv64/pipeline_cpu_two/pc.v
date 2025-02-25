@@ -1,7 +1,7 @@
 module pc(
     input wire clk,
     input wire rst,
-    
+
     output wire [63:0] pc_o_bus_info
 );
 reg [63:0] pc;
@@ -16,5 +16,4 @@ end
 
 //封装bus
 assign pc_o_bus_info = {pc};
-
 endmodule

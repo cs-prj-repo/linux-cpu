@@ -1,6 +1,6 @@
 TOPNAME :=top_cpu
-CPU_DIR=$(CPU_HOME)/IP/rv64/pipeline_cpu_two
-SRC_DIR:=$(SIM_HOME)/sim
+CPU_DIR=$(CPU_HOME)/IP/rv64/pipeline_cpu_one
+SRC_DIR:=$(SIM_HOME)/src  #要么是sim, 要么是src, src是测试验证框架，sim是
 
 
 PREFIX_NAME:=npc
