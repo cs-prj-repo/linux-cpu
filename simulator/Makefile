@@ -1,5 +1,5 @@
 TOPNAME :=top_cpu
-CPU_DIR=$(CPU_HOME)/IP/rv64/pipeline_cpu_one
+CPU_DIR=$(CPU_HOME)/IP/rv64/pipeline_cpu
 SRC_DIR:=$(SIM_HOME)/src  #要么是sim, 要么是src, src是测试验证框架，sim是
 
 
